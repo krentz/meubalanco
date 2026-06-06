@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meu Balanço</title>
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meu Balanço">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --bg:#0d0d0d; --bg2:#161616; --bg3:#1e1e1e; --bg4:#252525;
+    --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
+    --text:#f0f0f0; --text2:#888; --text3:#555;
+    --green:#1D9E75; --green-bg:rgba(29,158,117,0.12); --green-border:rgba(29,158,117,0.3);
+    --red:#D85A30; --red-bg:rgba(216,90,48,0.12); --red-border:rgba(216,90,48,0.3);
+    --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+    --r-md:10px; --r-lg:16px; --r-xl:22px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
+
+  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:18px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+  .topbar-brand{display:flex;align-items:center;gap:10px;}
+  .brand-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--green),#0f6e56);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:var(--mono);letter-spacing:-1px;}
+  .brand-name{font-size:15px;font-weight:600;color:var(--text);}
+  .brand-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+  .period-nav{display:flex;align-items:center;gap:10px;}
+  .period-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;}
+  .period-btn:hover{background:var(--bg4);color:var(--text);}
+  .period-label{font-size:14px;font-weight:500;color:var(--text);min-width:130px;text-align:center;}
+
+  .main{max-width:520px;margin:0 auto;padding:28px 20px 60px;}
+
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+  .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;}
+  .s-label{font-size:11px;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+  .s-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .s-value.green{color:var(--green);} .s-value.red{color:var(--red);}
+
+  .bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:20px;display:none;}
+  .bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .bar-title{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
+  .bar-pct{font-family:var(--mono);font-size:13px;font-weight:500;}
+  .track{height:8px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+  .fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;}
+  .bar-hint{font-size:11px;color:var(--text3);}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
+  .btn-action{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 10px;border-radius:var(--r-lg);border:1px solid;font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;}
+  .btn-action:hover{opacity:.85;}
+  .btn-entrada{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+  .btn-entrada:hover{background:rgba(29,158,117,.2);border-color:var(--green);}
+  .btn-saida{background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
+  .btn-saida:hover{background:rgba(216,90,48,.2);border-color:var(--red);}
+
+  .cat-section{margin-bottom:28px;display:none;}
+  .section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+  .cat-rows{display:flex;flex-direction:column;gap:8px;}
+  .cat-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .cat-name{width:130px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
+  .cat-track{flex:1;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+  .cat-fill{height:100%;border-radius:99px;background:var(--red);opacity:.7;}
+  .cat-val{font-family:var(--mono);font-size:12px;color:var(--text2);min-width:80px;text-align:right;flex-shrink:0;}
+
+  .lanc-list{display:flex;flex-direction:column;gap:6px;}
+  .lanc-item{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 14px;transition:border-color .15s;animation:slideIn .2s ease;}
+  .lanc-item:hover{border-color:var(--border2);}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .lanc-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .dot-entrada{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+  .dot-saida{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+  .lanc-info{flex:1;min-width:0;}
+  .lanc-desc{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lanc-cat{font-size:11px;color:var(--text3);margin-top:2px;}
+  .lanc-valor{font-family:var(--mono);font-size:14px;font-weight:500;flex-shrink:0;}
+  .v-entrada{color:var(--green);} .v-saida{color:var(--red);}
+  .item-actions{display:flex;gap:4px;flex-shrink:0;}
+  .btn-icon{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;color:var(--text3);}
+  .btn-icon:hover{background:var(--bg4);color:var(--text2);}
+  .btn-edit:hover{background:rgba(29,158,117,.12);color:var(--green);}
+  .btn-del:hover{background:var(--red-bg);color:var(--red);}
+
+  .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;background:var(--bg2);border:1px dashed var(--border2);border-radius:var(--r-xl);}
+  .empty i{font-size:32px;display:block;margin-bottom:10px;color:var(--text3);}
+  .empty span{display:block;color:var(--text2);font-size:13px;margin-top:4px;}
+
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
+  .overlay.open{display:flex;}
+  @media(min-width:480px){.overlay{align-items:center;padding:20px;}.modal{border-radius:var(--r-xl)!important;}}
+  .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:24px 20px 32px;width:100%;max-width:420px;animation:slideUp .25s cubic-bezier(.4,0,.2,1);}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-handle{width:36px;height:4px;background:var(--bg4);border-radius:99px;margin:0 auto 20px;}
+  .modal-title{font-size:16px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px;}
+  .modal label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+  .modal-field{margin-bottom:14px;}
+  .modal input,.modal select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-md);color:var(--text);font-family:var(--font);font-size:15px;padding:12px 14px;outline:none;transition:border-color .15s;appearance:none;}
+  .modal input:focus,.modal select:focus{border-color:var(--green);}
+  .modal-btns{display:flex;gap:10px;margin-top:20px;}
+  .modal-btns button{flex:1;padding:14px;border-radius:var(--r-md);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:opacity .15s;}
+  .modal-btns button:hover{opacity:.85;}
+  .btn-cancel{background:var(--bg4);color:var(--text2);}
+  .btn-ok{color:#fff;} .btn-ok-entrada{background:var(--green);} .btn-ok-saida{background:var(--red);}
+  .input-hint{font-size:11px;color:var(--text3);margin-top:5px;}
+  .divider{height:1px;background:var(--border);margin:24px 0;}
+
+  #install-banner{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green-border);border-radius:var(--r-lg);padding:12px 18px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:300;max-width:340px;width:calc(100% - 40px);}
+  #install-banner.show{display:flex;}
+  #install-banner span{flex:1;font-size:13px;color:var(--text2);}
+  #install-banner strong{display:block;font-size:14px;color:var(--text);margin-bottom:2px;}
+  .btn-install{background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;}
+  .btn-install-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px;line-height:1;}
+
+  /* iOS install tip */
+  #ios-tip{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:300;max-width:320px;width:calc(100% - 40px);text-align:center;}
+  #ios-tip.show{display:block;}
+  #ios-tip p{font-size:13px;color:var(--text2);line-height:1.6;}
+  #ios-tip strong{color:var(--text);}
+  #ios-tip button{margin-top:12px;background:var(--bg4);border:none;color:var(--text2);padding:8px 20px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-icon">MB</div>
+    <div>
+      <div class="brand-name">Meu Balanço</div>
+      <div class="brand-sub">Planejamento pessoal</div>
+    </div>
+  </div>
+  <div class="period-nav">
+    <button class="period-btn" id="prev"><i class="ti ti-chevron-left"></i></button>
+    <div class="period-label" id="period-label">—</div>
+    <button class="period-btn" id="next"><i class="ti ti-chevron-right"></i></button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="summary">
+    <div class="s-card">
+      <div class="s-label"><i class="ti ti-arrow-down-circle" style="color:var(--green)"></i> Entradas</div>
+      <div class="s-value green" id="tot-ent">R$ 0,00</div>
+    </div>
+    <div class="s-card">
+      <div class="s-label"><i class="ti ti-arrow-up-circle" style="color:var(--red)"></i> Saídas</div>
+      <div class="s-value red" id="tot-sai">R$ 0,00</div>
+    </div>
+    <div class="s-card">
+      <div class="s-label"><i class="ti ti-wallet"></i> Saldo</div>
+      <div class="s-value" id="saldo">R$ 0,00</div>
+    </div>
+  </div>
+
+  <div class="bar-wrap" id="bar-wrap">
+    <div class="bar-header">
+      <span class="bar-title"><i class="ti ti-percentage"></i> Renda comprometida</span>
+      <span class="bar-pct" id="bar-pct">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="bar-fill" style="width:0%"></div></div>
+    <div class="bar-hint">Meta recomendada: gastar menos de 80% da renda</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-action btn-entrada" id="open-ent"><i class="ti ti-plus" aria-hidden="true"></i> Entrada</button>
+    <button class="btn-action btn-saida"   id="open-sai"><i class="ti ti-minus" aria-hidden="true"></i> Saída</button>
+  </div>
+
+  <div class="cat-section" id="cat-section">
+    <div class="section-title"><i class="ti ti-chart-pie"></i> Saídas por categoria</div>
+    <div class="cat-rows" id="cat-rows"></div>
+    <div class="divider"></div>
+  </div>
+
+  <div>
+    <div class="section-title"><i class="ti ti-list"></i> Lançamentos</div>
+    <div class="lanc-list" id="lanc-list"></div>
+  </div>
+</div>
+
+<div id="install-banner">
+  <span><strong>Instalar Meu Balanço</strong>Adicionar à tela inicial</span>
+  <button class="btn-install" id="btn-inst-ok">Instalar</button>
+  <button class="btn-install-x" id="btn-inst-x">×</button>
+</div>
+
+<div id="ios-tip">
+  <p>Para instalar no iPhone, toque em <strong>Compartilhar</strong> <strong>⎙</strong> e depois em <strong>"Adicionar à Tela de Início"</strong>.</p>
+  <button id="btn-ios-x">Entendi</button>
+</div>
+
+<!-- MODAL ENTRADA -->
+<div class="overlay" id="ov-ent">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="ent-title" style="color:var(--green)">
+      <i class="ti ti-arrow-down-circle"></i> Nova entrada
+    </div>
+    <div class="modal-field">
+      <label>Descrição <span style="color:var(--text3);text-transform:none;font-size:11px">(opcional)</span></label>
+      <input type="text" id="ent-desc" placeholder="Ex: Salário de junho" autocomplete="off">
+      <div class="input-hint">Se deixar em branco, usamos a categoria como descrição</div>
+    </div>
+    <div class="modal-field">
+      <label>Valor (R$)</label>
+      <input type="number" id="ent-val" placeholder="0,00" min="0" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label>Categoria</label>
+      <select id="ent-cat">
+        <option>Salário</option>
+        <option>Vale alimentação</option>
+        <option>Renda passiva</option>
+        <option>Freelance / extra</option>
+        <option>Outros</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="cancel-ent">Cancelar</button>
+      <button class="btn-ok btn-ok-entrada" id="save-ent">Adicionar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SAÍDA -->
+<div class="overlay" id="ov-sai">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="sai-title" style="color:var(--red)">
+      <i class="ti ti-arrow-up-circle"></i> Nova saída
+    </div>
+    <div class="modal-field">
+      <label>Descrição <span style="color:var(--text3);text-transform:none;font-size:11px">(opcional)</span></label>
+      <input type="text" id="sai-desc" placeholder="Ex: Conta de luz" autocomplete="off">
+      <div class="input-hint">Se deixar em branco, usamos a categoria como descrição</div>
+    </div>
+    <div class="modal-field">
+      <label>Valor (R$)</label>
+      <input type="number" id="sai-val" placeholder="0,00" min="0" step="0.01">
+    </div>
+    <div class="modal-field">
+      <label>Categoria</label>
+      <select id="sai-cat">
+        <option>Cartão de crédito</option>
+        <option>Casa / moradia</option>
+        <option>Carro / transporte</option>
+        <option>Financiamento / dívida</option>
+        <option>Alimentação</option>
+        <option>Saúde</option>
+        <option>Lazer</option>
+        <option>Educação</option>
+        <option>Outros</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="cancel-sai">Cancelar</button>
+      <button class="btn-ok btn-ok-saida" id="save-sai">Adicionar saída</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const now=new Date(); let y=now.getFullYear(),m=now.getMonth(),editIdx=null;
+const key=()=>`mb_${y}_${m}`;
+const load=()=>{try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return[];}};
+const save=d=>localStorage.setItem(key(),JSON.stringify(d));
+const fmt=n=>'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function render(){
+  document.getElementById('period-label').textContent=MONTHS[m]+' '+y;
+  const data=load();
+  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
+  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0),saldo=totE-totS;
+  document.getElementById('tot-ent').textContent=fmt(totE);
+  document.getElementById('tot-sai').textContent=fmt(totS);
+  const sel=document.getElementById('saldo');
+  sel.textContent=(saldo<0?'- ':'')+fmt(saldo);
+  sel.className='s-value'+(saldo>0?' green':saldo<0?' red':'');
+
+  const bw=document.getElementById('bar-wrap');
+  if(totE>0){
+    bw.style.display='block';
+    const pct=Math.min(100,Math.round(totS/totE*100));
+    const f=document.getElementById('bar-fill');
+    f.style.width=pct+'%';
+    f.style.background=pct>80?'#D85A30':pct>60?'#F4A261':'#1D9E75';
+    const bp=document.getElementById('bar-pct');
+    bp.textContent=pct+'%';
+    bp.style.color=pct>80?'#D85A30':pct>60?'#F4A261':'#1D9E75';
+  } else bw.style.display='none';
+
+  const catMap={};
+  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const cs=document.getElementById('cat-section');
+  if(cats.length){
+    cs.style.display='block';
+    const max=cats[0][1];
+    document.getElementById('cat-rows').innerHTML=cats.map(([c,v])=>`
+      <div class="cat-row">
+        <div class="cat-name">${c}</div>
+        <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/max*100)}%"></div></div>
+        <div class="cat-val">${fmt(v)}</div>
+      </div>`).join('');
+  } else cs.style.display='none';
+
+  const ll=document.getElementById('lanc-list');
+  if(!data.length){
+    ll.innerHTML=`<div class="empty"><i class="ti ti-pig-money"></i>Nenhum lançamento ainda<span>Adicione uma entrada ou saída para começar</span></div>`;
+    return;
+  }
+  ll.innerHTML=[...data].reverse().map((d,ri)=>{
+    const i=data.length-1-ri,isE=d.t==='e',desc=d.d||d.c;
+    return `<div class="lanc-item">
+      <div class="lanc-dot ${isE?'dot-entrada':'dot-saida'}"><i class="ti ti-${isE?'arrow-down':'arrow-up'}" aria-hidden="true"></i></div>
+      <div class="lanc-info"><div class="lanc-desc">${desc}</div><div class="lanc-cat">${d.c}</div></div>
+      <div class="lanc-valor ${isE?'v-entrada':'v-saida'}">${isE?'+':'-'} ${fmt(d.v)}</div>
+      <div class="item-actions">
+        <button class="btn-icon btn-edit" onclick="openEdit(${i})" aria-label="Editar"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+        <button class="btn-icon btn-del"  onclick="del(${i})"      aria-label="Remover"><i class="ti ti-trash"  aria-hidden="true"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function del(i){const d=load();d.splice(i,1);save(d);render();}
+
+function openEdit(i){
+  const data=load(),item=data[i];editIdx=i;
+  if(item.t==='e'){
+    document.getElementById('ent-title').innerHTML='<i class="ti ti-pencil"></i> Editar entrada';
+    document.getElementById('ent-desc').value=item.d||'';
+    document.getElementById('ent-val').value=item.v;
+    setSel('ent-cat',item.c);
+    document.getElementById('save-ent').textContent='Salvar alterações';
+    openOv('ov-ent');
+  } else {
+    document.getElementById('sai-title').innerHTML='<i class="ti ti-pencil"></i> Editar saída';
+    document.getElementById('sai-desc').value=item.d||'';
+    document.getElementById('sai-val').value=item.v;
+    setSel('sai-cat',item.c);
+    document.getElementById('save-sai').textContent='Salvar alterações';
+    openOv('ov-sai');
+  }
+}
+function setSel(id,val){const s=document.getElementById(id);for(let i=0;i<s.options.length;i++)if(s.options[i].value===val){s.selectedIndex=i;return;}}
+function resetEnt(){editIdx=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-val').value='';document.getElementById('ent-cat').selectedIndex=0;document.getElementById('save-ent').textContent='Adicionar entrada';}
+function resetSai(){editIdx=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-val').value='';document.getElementById('sai-cat').selectedIndex=0;document.getElementById('save-sai').textContent='Adicionar saída';}
+
+document.getElementById('prev').onclick=()=>{m--;if(m<0){m=11;y--;}render();};
+document.getElementById('next').onclick=()=>{m++;if(m>11){m=0;y++;}render();};
+const openOv=id=>document.getElementById(id).classList.add('open');
+const closeOv=id=>document.getElementById(id).classList.remove('open');
+document.getElementById('open-ent').onclick=()=>{resetEnt();openOv('ov-ent');};
+document.getElementById('cancel-ent').onclick=()=>{closeOv('ov-ent');resetEnt();};
+document.getElementById('open-sai').onclick=()=>{resetSai();openOv('ov-sai');};
+document.getElementById('cancel-sai').onclick=()=>{closeOv('ov-sai');resetSai();};
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');resetEnt();resetSai();}}));
+
+document.getElementById('save-ent').onclick=()=>{
+  const desc=document.getElementById('ent-desc').value.trim();
+  const val=parseFloat(document.getElementById('ent-val').value);
+  const cat=document.getElementById('ent-cat').value;
+  if(!val||val<=0)return;
+  const data=load();const item={t:'e',d:desc,v:val,c:cat};
+  if(editIdx!==null)data[editIdx]=item;else data.push(item);
+  save(data);closeOv('ov-ent');resetEnt();render();
+};
+document.getElementById('save-sai').onclick=()=>{
+  const desc=document.getElementById('sai-desc').value.trim();
+  const val=parseFloat(document.getElementById('sai-val').value);
+  const cat=document.getElementById('sai-cat').value;
+  if(!val||val<=0)return;
+  const data=load();const item={t:'s',d:desc,v:val,c:cat};
+  if(editIdx!==null)data[editIdx]=item;else data.push(item);
+  save(data);closeOv('ov-sai');resetSai();render();
+};
+
+// ── PWA install ─────────────────────────────────────────────────────────────
+let deferredPrompt=null;
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
+const isStandalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+
+if(isIOS&&!isStandalone){
+  setTimeout(()=>document.getElementById('ios-tip').classList.add('show'),2000);
+}
+document.getElementById('btn-ios-x').onclick=()=>document.getElementById('ios-tip').classList.remove('show');
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('btn-inst-ok').onclick=async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+  document.getElementById('install-banner').classList.remove('show');
+};
+document.getElementById('btn-inst-x').onclick=()=>document.getElementById('install-banner').classList.remove('show');
+window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.remove('show'));
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('service-worker.js');
+}
+
+render();
+</script>
+</body>
+</html>
