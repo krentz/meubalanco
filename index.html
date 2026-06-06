@@ -144,6 +144,21 @@
   #ios-tip strong{color:var(--text);}
   #ios-tip button{margin-top:12px;background:var(--bg4);border:none;color:var(--text2);padding:8px 20px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;cursor:pointer;}
 
+  /* recorrente toggle */
+  .rec-row{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;margin-top:4px;cursor:pointer;transition:border-color .15s;}
+  .rec-row.active{border-color:var(--green-border);}
+  .rec-top{display:flex;align-items:center;gap:10px;}
+  .toggle-wrap{width:38px;height:22px;background:var(--bg4);border-radius:99px;border:1px solid var(--border2);position:relative;transition:background .2s;flex-shrink:0;}
+  .toggle-wrap.on{background:var(--green);border-color:var(--green);}
+  .toggle-thumb{width:16px;height:16px;background:var(--text3);border-radius:50%;position:absolute;top:2px;left:2px;transition:all .2s;}
+  .toggle-wrap.on .toggle-thumb{left:18px;background:#fff;}
+  .rec-label{font-size:13px;font-weight:500;color:var(--text);}
+  .rec-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+  .rec-detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);line-height:1.6;}
+  .rec-row.active .rec-detail{display:block;}
+  .badge-rec{display:inline-flex;align-items:center;gap:3px;background:var(--green-bg);color:var(--green);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500;}
+  .badge-rec-red{display:inline-flex;align-items:center;gap:3px;background:var(--red-bg);color:var(--red);border-radius:4px;padding:1px 6px;font-size:10px;font-weight:500;}
+
   /* print styles */
   @media print {
     body * { visibility: hidden; }
@@ -298,6 +313,19 @@
         <option>Outros</option>
       </select>
     </div>
+    <div class="rec-row" id="rec-ent" onclick="toggleRec('ent')">
+      <div class="rec-top">
+        <div class="toggle-wrap" id="tw-ent"><div class="toggle-thumb"></div></div>
+        <div>
+          <div class="rec-label">Lançamento recorrente</div>
+          <div class="rec-sub">Repetir automaticamente todo mês</div>
+        </div>
+      </div>
+      <div class="rec-detail">
+        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;" aria-hidden="true"></i>
+        Este valor será adicionado a partir deste mês em todos os meses seguintes. Para cancelar, basta apagar o lançamento.
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancel-ent">Cancelar</button>
       <button class="btn-ok btn-ok-entrada" id="save-ent">Adicionar entrada</button>
@@ -335,6 +363,19 @@
         <option>Outros</option>
       </select>
     </div>
+    <div class="rec-row" id="rec-sai" onclick="toggleRec('sai')">
+      <div class="rec-top">
+        <div class="toggle-wrap" id="tw-sai"><div class="toggle-thumb"></div></div>
+        <div>
+          <div class="rec-label">Lançamento recorrente</div>
+          <div class="rec-sub">Repetir automaticamente todo mês</div>
+        </div>
+      </div>
+      <div class="rec-detail">
+        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;" aria-hidden="true"></i>
+        Este valor será adicionado a partir deste mês em todos os meses seguintes. Para cancelar, basta apagar o lançamento.
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancel-sai">Cancelar</button>
       <button class="btn-ok btn-ok-saida" id="save-sai">Adicionar saída</button>
@@ -358,14 +399,50 @@
 
 <script>
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const now=new Date();let y=now.getFullYear(),m=now.getMonth(),editIdx=null;
-const key=()=>`mb_${y}_${m}`;
-const load=()=>{try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return[];}};
-const save=d=>localStorage.setItem(key(),JSON.stringify(d));
-const fmt=n=>'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtNum=n=>Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const now=new Date();let y=now.getFullYear(),m=now.getMonth(),editIdx=null,editRecId=null;
 
+// ── storage helpers ───────────────────────────────────────────────────────────
+const key     = ()=>`mb_${y}_${m}`;
+const load    = ()=>{try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return[];}};
+const save    = d=>localStorage.setItem(key(),JSON.stringify(d));
+const loadRec = ()=>{try{return JSON.parse(localStorage.getItem('mb_recorrentes')||'[]');}catch(e){return[];}};
+const saveRec = d=>localStorage.setItem('mb_recorrentes',JSON.stringify(d));
+const fmt     = n=>'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtNum  = n=>Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const uid     = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+// ── inject recorrentes into month if not yet present ─────────────────────────
+function injectRecorrentes(){
+  const recs=loadRec();
+  if(!recs.length)return;
+  const data=load();
+  let changed=false;
+  recs.forEach(r=>{
+    const alreadyIn=data.some(d=>d.rid===r.id);
+    if(!alreadyIn){data.push({t:r.t,d:r.d,v:r.v,c:r.c,rid:r.id});changed=true;}
+  });
+  if(changed)save(data);
+}
+
+// ── toggle recorrente UI ──────────────────────────────────────────────────────
+function toggleRec(which){
+  const row=document.getElementById('rec-'+which);
+  const tw=document.getElementById('tw-'+which);
+  const isOn=tw.classList.contains('on');
+  if(isOn){tw.classList.remove('on');row.classList.remove('active');}
+  else{tw.classList.add('on');row.classList.add('active');}
+}
+function isRecOn(which){return document.getElementById('tw-'+which).classList.contains('on');}
+function setRecUI(which,on){
+  const tw=document.getElementById('tw-'+which);
+  const row=document.getElementById('rec-'+which);
+  if(on){tw.classList.add('on');row.classList.add('active');}
+  else{tw.classList.remove('on');row.classList.remove('active');}
+}
+
+// ── render ────────────────────────────────────────────────────────────────────
 function render(){
+  injectRecorrentes();
   document.getElementById('period-label').textContent=MONTHS[m]+' '+y;
   const data=load();
   const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
@@ -410,9 +487,15 @@ function render(){
   }
   ll.innerHTML=[...data].reverse().map((d,ri)=>{
     const i=data.length-1-ri,isE=d.t==='e',desc=d.d||d.c;
+    const recBadge=d.rid
+      ? `<span class="${isE?'badge-rec':'badge-rec-red'}"><i class="ti ti-repeat" style="font-size:9px;" aria-hidden="true"></i> mensal</span>`
+      : '';
     return `<div class="lanc-item">
       <div class="lanc-dot ${isE?'dot-entrada':'dot-saida'}"><i class="ti ti-${isE?'arrow-down':'arrow-up'}" aria-hidden="true"></i></div>
-      <div class="lanc-info"><div class="lanc-desc">${desc}</div><div class="lanc-cat">${d.c}</div></div>
+      <div class="lanc-info">
+        <div class="lanc-desc">${desc}</div>
+        <div class="lanc-cat" style="display:flex;align-items:center;gap:5px;">${d.c} ${recBadge}</div>
+      </div>
       <div class="lanc-valor ${isE?'v-entrada':'v-saida'}">${isE?'+':'-'} ${fmt(d.v)}</div>
       <div class="item-actions">
         <button class="btn-icon btn-edit" onclick="openEdit(${i})" aria-label="Editar"><i class="ti ti-pencil" aria-hidden="true"></i></button>
@@ -422,15 +505,40 @@ function render(){
   }).join('');
 }
 
-function del(i){const d=load();d.splice(i,1);save(d);render();}
+// ── delete ────────────────────────────────────────────────────────────────────
+function del(i){
+  const data=load();
+  const item=data[i];
+  if(item.rid){
+    // recorrente: remove from template + all months
+    const recs=loadRec().filter(r=>r.id!==item.rid);
+    saveRec(recs);
+    // remove from every stored month
+    Object.keys(localStorage).filter(k=>k.startsWith('mb_')).forEach(k=>{
+      try{
+        const arr=JSON.parse(localStorage.getItem(k)||'[]');
+        const filtered=arr.filter(d=>d.rid!==item.rid);
+        if(filtered.length!==arr.length)localStorage.setItem(k,JSON.stringify(filtered));
+      }catch(e){}
+    });
+  } else {
+    data.splice(i,1);
+    save(data);
+  }
+  render();
+}
 
+// ── edit ──────────────────────────────────────────────────────────────────────
 function openEdit(i){
-  const data=load(),item=data[i];editIdx=i;
+  const data=load(),item=data[i];
+  editIdx=i;
+  editRecId=item.rid||null;
   if(item.t==='e'){
     document.getElementById('ent-title').innerHTML='<i class="ti ti-pencil"></i> Editar entrada';
     document.getElementById('ent-desc').value=item.d||'';
     document.getElementById('ent-val').value=item.v;
     setSel('ent-cat',item.c);
+    setRecUI('ent',!!item.rid);
     document.getElementById('save-ent').textContent='Salvar alterações';
     openOv('ov-ent');
   } else {
@@ -438,15 +546,109 @@ function openEdit(i){
     document.getElementById('sai-desc').value=item.d||'';
     document.getElementById('sai-val').value=item.v;
     setSel('sai-cat',item.c);
+    setRecUI('sai',!!item.rid);
     document.getElementById('save-sai').textContent='Salvar alterações';
     openOv('ov-sai');
   }
 }
-function setSel(id,val){const s=document.getElementById(id);for(let i=0;i<s.options.length;i++)if(s.options[i].value===val){s.selectedIndex=i;return;}}
-function resetEnt(){editIdx=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-val').value='';document.getElementById('ent-cat').selectedIndex=0;document.getElementById('save-ent').textContent='Adicionar entrada';}
-function resetSai(){editIdx=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-val').value='';document.getElementById('sai-cat').selectedIndex=0;document.getElementById('save-sai').textContent='Adicionar saída';}
 
-// ── navigation ───────────────────────────────────────────────────────────────
+function setSel(id,val){const s=document.getElementById(id);for(let i=0;i<s.options.length;i++)if(s.options[i].value===val){s.selectedIndex=i;return;}}
+function resetEnt(){editIdx=null;editRecId=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-val').value='';document.getElementById('ent-cat').selectedIndex=0;document.getElementById('save-ent').textContent='Adicionar entrada';setRecUI('ent',false);}
+function resetSai(){editIdx=null;editRecId=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-val').value='';document.getElementById('sai-cat').selectedIndex=0;document.getElementById('save-sai').textContent='Adicionar saída';setRecUI('sai',false);}
+
+// ── save entrada ──────────────────────────────────────────────────────────────
+document.getElementById('save-ent').onclick=()=>{
+  const desc=document.getElementById('ent-desc').value.trim();
+  const val=parseFloat(document.getElementById('ent-val').value);
+  const cat=document.getElementById('ent-cat').value;
+  if(!val||val<=0)return;
+  const recOn=isRecOn('ent');
+
+  if(editIdx!==null){
+    // editing existing
+    const data=load();
+    const oldItem=data[editIdx];
+    const rid=editRecId||(recOn?uid():null);
+    const item={t:'e',d:desc,v:val,c:cat,...(rid?{rid}:{})};
+    data[editIdx]=item;
+    save(data);
+    if(rid){
+      // update or create recorrente template
+      const recs=loadRec();
+      const ri=recs.findIndex(r=>r.id===rid);
+      const template={id:rid,t:'e',d:desc,v:val,c:cat};
+      if(ri>=0)recs[ri]=template;else recs.push(template);
+      saveRec(recs);
+      // update all other months that have this rid
+      Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!==key()).forEach(k=>{
+        try{
+          const arr=JSON.parse(localStorage.getItem(k)||'[]');
+          const updated=arr.map(d=>d.rid===rid?{...d,d:desc,v:val,c:cat}:d);
+          localStorage.setItem(k,JSON.stringify(updated));
+        }catch(e){}
+      });
+    }
+  } else {
+    // new item
+    const data=load();
+    if(recOn){
+      const rid=uid();
+      const template={id:rid,t:'e',d:desc,v:val,c:cat};
+      const recs=loadRec();recs.push(template);saveRec(recs);
+      data.push({t:'e',d:desc,v:val,c:cat,rid});
+    } else {
+      data.push({t:'e',d:desc,v:val,c:cat});
+    }
+    save(data);
+  }
+  closeOv('ov-ent');resetEnt();render();
+};
+
+// ── save saida ────────────────────────────────────────────────────────────────
+document.getElementById('save-sai').onclick=()=>{
+  const desc=document.getElementById('sai-desc').value.trim();
+  const val=parseFloat(document.getElementById('sai-val').value);
+  const cat=document.getElementById('sai-cat').value;
+  if(!val||val<=0)return;
+  const recOn=isRecOn('sai');
+
+  if(editIdx!==null){
+    const data=load();
+    const oldItem=data[editIdx];
+    const rid=editRecId||(recOn?uid():null);
+    const item={t:'s',d:desc,v:val,c:cat,...(rid?{rid}:{})};
+    data[editIdx]=item;
+    save(data);
+    if(rid){
+      const recs=loadRec();
+      const ri=recs.findIndex(r=>r.id===rid);
+      const template={id:rid,t:'s',d:desc,v:val,c:cat};
+      if(ri>=0)recs[ri]=template;else recs.push(template);
+      saveRec(recs);
+      Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!==key()).forEach(k=>{
+        try{
+          const arr=JSON.parse(localStorage.getItem(k)||'[]');
+          const updated=arr.map(d=>d.rid===rid?{...d,d:desc,v:val,c:cat}:d);
+          localStorage.setItem(k,JSON.stringify(updated));
+        }catch(e){}
+      });
+    }
+  } else {
+    const data=load();
+    if(recOn){
+      const rid=uid();
+      const template={id:rid,t:'s',d:desc,v:val,c:cat};
+      const recs=loadRec();recs.push(template);saveRec(recs);
+      data.push({t:'s',d:desc,v:val,c:cat,rid});
+    } else {
+      data.push({t:'s',d:desc,v:val,c:cat});
+    }
+    save(data);
+  }
+  closeOv('ov-sai');resetSai();render();
+};
+
+// ── navigation ────────────────────────────────────────────────────────────────
 document.getElementById('prev').onclick=()=>{m--;if(m<0){m=11;y--;}render();};
 document.getElementById('next').onclick=()=>{m++;if(m>11){m=0;y++;}render();};
 const openOv=id=>document.getElementById(id).classList.add('open');
@@ -456,25 +658,6 @@ document.getElementById('cancel-ent').onclick=()=>{closeOv('ov-ent');resetEnt();
 document.getElementById('open-sai').onclick=()=>{resetSai();openOv('ov-sai');};
 document.getElementById('cancel-sai').onclick=()=>{closeOv('ov-sai');resetSai();};
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');resetEnt();resetSai();}}));
-
-document.getElementById('save-ent').onclick=()=>{
-  const desc=document.getElementById('ent-desc').value.trim();
-  const val=parseFloat(document.getElementById('ent-val').value);
-  const cat=document.getElementById('ent-cat').value;
-  if(!val||val<=0)return;
-  const data=load();const item={t:'e',d:desc,v:val,c:cat};
-  if(editIdx!==null)data[editIdx]=item;else data.push(item);
-  save(data);closeOv('ov-ent');resetEnt();render();
-};
-document.getElementById('save-sai').onclick=()=>{
-  const desc=document.getElementById('sai-desc').value.trim();
-  const val=parseFloat(document.getElementById('sai-val').value);
-  const cat=document.getElementById('sai-cat').value;
-  if(!val||val<=0)return;
-  const data=load();const item={t:'s',d:desc,v:val,c:cat};
-  if(editIdx!==null)data[editIdx]=item;else data.push(item);
-  save(data);closeOv('ov-sai');resetSai();render();
-};
 
 // ── EXPORT ───────────────────────────────────────────────────────────────────
 document.getElementById('open-exp').onclick=()=>{
