@@ -13,15 +13,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
-    --bg:#0d0d0d; --bg2:#161616; --bg3:#1e1e1e; --bg4:#252525;
-    --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.14);
-    --text:#f0f0f0; --text2:#888; --text3:#555;
-    --green:#1D9E75; --green-bg:rgba(29,158,117,0.12); --green-border:rgba(29,158,117,0.3);
-    --red:#D85A30; --red-bg:rgba(216,90,48,0.12); --red-border:rgba(216,90,48,0.3);
-    --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
-    --r-md:10px; --r-lg:16px; --r-xl:22px;
+    --bg:#0d0d0d;--bg2:#161616;--bg3:#1e1e1e;--bg4:#252525;
+    --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);
+    --text:#f0f0f0;--text2:#888;--text3:#555;
+    --green:#1D9E75;--green-bg:rgba(29,158,117,0.12);--green-border:rgba(29,158,117,0.3);
+    --red:#D85A30;--red-bg:rgba(216,90,48,0.12);--red-border:rgba(216,90,48,0.3);
+    --blue:#378ADD;--blue-bg:rgba(55,138,221,0.12);--blue-border:rgba(55,138,221,0.3);
+    --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+    --r-md:10px;--r-lg:16px;--r-xl:22px;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
@@ -42,7 +44,7 @@
   .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;}
   .s-label{font-size:11px;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
   .s-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .s-value.green{color:var(--green);} .s-value.red{color:var(--red);}
+  .s-value.green{color:var(--green);}.s-value.red{color:var(--red);}
 
   .bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:20px;display:none;}
   .bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -52,13 +54,15 @@
   .fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;}
   .bar-hint{font-size:11px;color:var(--text3);}
 
-  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
-  .btn-action{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 10px;border-radius:var(--r-lg);border:1px solid;font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;}
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px;}
+  .btn-action{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 8px;border-radius:var(--r-lg);border:1px solid;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
   .btn-action:hover{opacity:.85;}
   .btn-entrada{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
   .btn-entrada:hover{background:rgba(29,158,117,.2);border-color:var(--green);}
   .btn-saida{background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
   .btn-saida:hover{background:rgba(216,90,48,.2);border-color:var(--red);}
+  .btn-export{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue);}
+  .btn-export:hover{background:rgba(55,138,221,.2);border-color:var(--blue);}
 
   .cat-section{margin-bottom:28px;display:none;}
   .section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
@@ -80,7 +84,7 @@
   .lanc-desc{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .lanc-cat{font-size:11px;color:var(--text3);margin-top:2px;}
   .lanc-valor{font-family:var(--mono);font-size:14px;font-weight:500;flex-shrink:0;}
-  .v-entrada{color:var(--green);} .v-saida{color:var(--red);}
+  .v-entrada{color:var(--green);}.v-saida{color:var(--red);}
   .item-actions{display:flex;gap:4px;flex-shrink:0;}
   .btn-icon{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;color:var(--text3);}
   .btn-icon:hover{background:var(--bg4);color:var(--text2);}
@@ -91,6 +95,7 @@
   .empty i{font-size:32px;display:block;margin-bottom:10px;color:var(--text3);}
   .empty span{display:block;color:var(--text2);font-size:13px;margin-top:4px;}
 
+  /* overlays */
   .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center;padding:0;}
   .overlay.open{display:flex;}
   @media(min-width:480px){.overlay{align-items:center;padding:20px;}.modal{border-radius:var(--r-xl)!important;}}
@@ -106,23 +111,45 @@
   .modal-btns button{flex:1;padding:14px;border-radius:var(--r-md);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:opacity .15s;}
   .modal-btns button:hover{opacity:.85;}
   .btn-cancel{background:var(--bg4);color:var(--text2);}
-  .btn-ok{color:#fff;} .btn-ok-entrada{background:var(--green);} .btn-ok-saida{background:var(--red);}
+  .btn-ok{color:#fff;}.btn-ok-entrada{background:var(--green);}.btn-ok-saida{background:var(--red);}
   .input-hint{font-size:11px;color:var(--text3);margin-top:5px;}
   .divider{height:1px;background:var(--border);margin:24px 0;}
 
+  /* export modal */
+  .export-option{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:8px;}
+  .export-option:last-child{margin-bottom:0;}
+  .export-option:hover{background:var(--bg4);border-color:var(--border2);}
+  .export-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .export-info{flex:1;}
+  .export-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;}
+  .export-desc{font-size:12px;color:var(--text3);}
+  .export-arrow{color:var(--text3);font-size:16px;}
+
+  /* import area */
+  .import-area{border:1px dashed var(--border2);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:border-color .15s;}
+  .import-area:hover{border-color:var(--blue);}
+  .import-area i{font-size:28px;color:var(--text3);display:block;margin-bottom:8px;}
+  .import-area p{font-size:13px;color:var(--text2);}
+
+  /* install / ios */
   #install-banner{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--green-border);border-radius:var(--r-lg);padding:12px 18px;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:300;max-width:340px;width:calc(100% - 40px);}
   #install-banner.show{display:flex;}
   #install-banner span{flex:1;font-size:13px;color:var(--text2);}
   #install-banner strong{display:block;font-size:14px;color:var(--text);margin-bottom:2px;}
   .btn-install{background:var(--green);color:#fff;border:none;padding:8px 16px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;}
   .btn-install-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:4px;line-height:1;}
-
-  /* iOS install tip */
   #ios-tip{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:300;max-width:320px;width:calc(100% - 40px);text-align:center;}
   #ios-tip.show{display:block;}
   #ios-tip p{font-size:13px;color:var(--text2);line-height:1.6;}
   #ios-tip strong{color:var(--text);}
   #ios-tip button{margin-top:12px;background:var(--bg4);border:none;color:var(--text2);padding:8px 20px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;cursor:pointer;}
+
+  /* print styles */
+  @media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { position: fixed; inset: 0; background: #fff; padding: 32px; font-family: Arial, sans-serif; }
+  }
 </style>
 </head>
 <body>
@@ -170,6 +197,7 @@
   <div class="actions">
     <button class="btn-action btn-entrada" id="open-ent"><i class="ti ti-plus" aria-hidden="true"></i> Entrada</button>
     <button class="btn-action btn-saida"   id="open-sai"><i class="ti ti-minus" aria-hidden="true"></i> Saída</button>
+    <button class="btn-action btn-export"  id="open-exp"><i class="ti ti-share" aria-hidden="true"></i> Exportar</button>
   </div>
 
   <div class="cat-section" id="cat-section">
@@ -184,15 +212,63 @@
   </div>
 </div>
 
-<div id="install-banner">
-  <span><strong>Instalar Meu Balanço</strong>Adicionar à tela inicial</span>
-  <button class="btn-install" id="btn-inst-ok">Instalar</button>
-  <button class="btn-install-x" id="btn-inst-x">×</button>
-</div>
+<!-- EXPORT MODAL -->
+<div class="overlay" id="ov-exp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" style="color:var(--blue)">
+      <i class="ti ti-share"></i> Exportar dados
+    </div>
+    <div id="exp-period-label" style="font-size:12px;color:var(--text3);margin-bottom:16px;"></div>
 
-<div id="ios-tip">
-  <p>Para instalar no iPhone, toque em <strong>Compartilhar</strong> <strong>⎙</strong> e depois em <strong>"Adicionar à Tela de Início"</strong>.</p>
-  <button id="btn-ios-x">Entendi</button>
+    <div class="export-option" id="exp-json">
+      <div class="export-icon" style="background:var(--blue-bg);color:var(--blue);">
+        <i class="ti ti-file-code" aria-hidden="true"></i>
+      </div>
+      <div class="export-info">
+        <div class="export-name">Backup JSON</div>
+        <div class="export-desc">Reimportável no app — nunca perca seus dados</div>
+      </div>
+      <i class="ti ti-share export-arrow" aria-hidden="true"></i>
+    </div>
+
+    <div class="export-option" id="exp-xlsx">
+      <div class="export-icon" style="background:rgba(29,158,117,.12);color:var(--green);">
+        <i class="ti ti-table" aria-hidden="true"></i>
+      </div>
+      <div class="export-info">
+        <div class="export-name">Planilha Excel</div>
+        <div class="export-desc">Relatório completo em .xlsx</div>
+      </div>
+      <i class="ti ti-share export-arrow" aria-hidden="true"></i>
+    </div>
+
+    <div class="export-option" id="exp-pdf">
+      <div class="export-icon" style="background:var(--red-bg);color:var(--red);">
+        <i class="ti ti-file-text" aria-hidden="true"></i>
+      </div>
+      <div class="export-info">
+        <div class="export-name">Relatório PDF</div>
+        <div class="export-desc">Abre o menu de impressão/salvar do device</div>
+      </div>
+      <i class="ti ti-printer export-arrow" aria-hidden="true"></i>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="modal-title" style="color:var(--text2);font-size:13px;margin-bottom:12px;">
+      <i class="ti ti-upload" style="font-size:16px;"></i> Importar backup JSON
+    </div>
+    <div class="import-area" id="import-area" onclick="document.getElementById('import-input').click()">
+      <i class="ti ti-file-upload" aria-hidden="true"></i>
+      <p>Toque para selecionar um arquivo .json<br><span style="font-size:11px;color:var(--text3);">Atenção: substitui os dados do mês atual</span></p>
+    </div>
+    <input type="file" id="import-input" accept=".json" style="display:none">
+
+    <div class="modal-btns" style="margin-top:20px;">
+      <button class="btn-cancel" id="cancel-exp">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <!-- MODAL ENTRADA -->
@@ -265,13 +341,28 @@
   </div>
 </div>
 
+<!-- hidden print area -->
+<div id="print-area" style="display:none"></div>
+
+<!-- install banners -->
+<div id="install-banner">
+  <span><strong>Instalar Meu Balanço</strong>Adicionar à tela inicial</span>
+  <button class="btn-install" id="btn-inst-ok">Instalar</button>
+  <button class="btn-install-x" id="btn-inst-x">×</button>
+</div>
+<div id="ios-tip">
+  <p>Para instalar no iPhone, toque em <strong>Compartilhar ⎙</strong> e depois em <strong>"Adicionar à Tela de Início"</strong>.</p>
+  <button id="btn-ios-x">Entendi</button>
+</div>
+
 <script>
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const now=new Date(); let y=now.getFullYear(),m=now.getMonth(),editIdx=null;
+const now=new Date();let y=now.getFullYear(),m=now.getMonth(),editIdx=null;
 const key=()=>`mb_${y}_${m}`;
 const load=()=>{try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return[];}};
 const save=d=>localStorage.setItem(key(),JSON.stringify(d));
 const fmt=n=>'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtNum=n=>Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 
 function render(){
   document.getElementById('period-label').textContent=MONTHS[m]+' '+y;
@@ -354,6 +445,7 @@ function setSel(id,val){const s=document.getElementById(id);for(let i=0;i<s.opti
 function resetEnt(){editIdx=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-val').value='';document.getElementById('ent-cat').selectedIndex=0;document.getElementById('save-ent').textContent='Adicionar entrada';}
 function resetSai(){editIdx=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-val').value='';document.getElementById('sai-cat').selectedIndex=0;document.getElementById('save-sai').textContent='Adicionar saída';}
 
+// ── navigation ───────────────────────────────────────────────────────────────
 document.getElementById('prev').onclick=()=>{m--;if(m<0){m=11;y--;}render();};
 document.getElementById('next').onclick=()=>{m++;if(m>11){m=0;y++;}render();};
 const openOv=id=>document.getElementById(id).classList.add('open');
@@ -383,33 +475,168 @@ document.getElementById('save-sai').onclick=()=>{
   save(data);closeOv('ov-sai');resetSai();render();
 };
 
-// ── PWA install ─────────────────────────────────────────────────────────────
+// ── EXPORT ───────────────────────────────────────────────────────────────────
+document.getElementById('open-exp').onclick=()=>{
+  document.getElementById('exp-period-label').textContent=MONTHS[m]+' / '+y;
+  openOv('ov-exp');
+};
+document.getElementById('cancel-exp').onclick=()=>closeOv('ov-exp');
+
+// share or download helper
+function shareOrDownload(blob,filename){
+  const file=new File([blob],filename,{type:blob.type});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:'Meu Balanço — '+MONTHS[m]+' '+y}).catch(()=>{});
+  } else {
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+}
+
+// JSON export
+document.getElementById('exp-json').onclick=()=>{
+  const data=load();
+  const payload={periodo:`${MONTHS[m]} ${y}`,mes:m,ano:y,lancamentos:data};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  shareOrDownload(blob,`meubalanco_${y}_${String(m+1).padStart(2,'0')}.json`);
+};
+
+// XLSX export
+document.getElementById('exp-xlsx').onclick=()=>{
+  const data=load();
+  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
+  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0);
+  const periodo=`${MONTHS[m]} / ${y}`;
+
+  const wb=XLSX.utils.book_new();
+
+  // ── sheet 1: resumo ──────────────────────────────────────────────────────
+  const resumo=[
+    ['MEU BALANÇO — RELATÓRIO MENSAL'],
+    ['Período:',periodo],
+    [],
+    ['RESUMO'],
+    ['Total Entradas','R$ '+fmtNum(totE)],
+    ['Total Saídas','R$ '+fmtNum(totS)],
+    ['Saldo do Mês','R$ '+fmtNum(totE-totS)],
+    ['% Renda comprometida',totE>0?(Math.round(totS/totE*1000)/10)+'%':'—'],
+    [],
+    ['SAÍDAS POR CATEGORIA'],
+  ];
+  const catMap={};
+  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  Object.entries(catMap).sort((a,b)=>b[1]-a[1]).forEach(([c,v])=>{
+    resumo.push([c,'R$ '+fmtNum(v)]);
+  });
+  const wsResumo=XLSX.utils.aoa_to_sheet(resumo);
+  wsResumo['!cols']=[{wch:32},{wch:18}];
+  XLSX.utils.book_append_sheet(wb,wsResumo,'Resumo');
+
+  // ── sheet 2: lançamentos ─────────────────────────────────────────────────
+  const rows=[['Tipo','Descrição','Categoria','Valor (R$)']];
+  data.forEach(d=>{
+    rows.push([
+      d.t==='e'?'Entrada':'Saída',
+      d.d||d.c,
+      d.c,
+      d.v
+    ]);
+  });
+  const wsLanc=XLSX.utils.aoa_to_sheet(rows);
+  wsLanc['!cols']=[{wch:10},{wch:30},{wch:22},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,wsLanc,'Lançamentos');
+
+  const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+  const blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  shareOrDownload(blob,`meubalanco_${y}_${String(m+1).padStart(2,'0')}.xlsx`);
+};
+
+// PDF via print
+document.getElementById('exp-pdf').onclick=()=>{
+  const data=load();
+  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
+  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0),saldo=totE-totS;
+  const catMap={};
+  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+
+  const pa=document.getElementById('print-area');
+  pa.innerHTML=`
+    <style>
+      #print-area { font-family: Arial, sans-serif; color: #111; background: #fff; padding: 32px; max-width: 640px; margin: 0 auto; }
+      #print-area h1 { font-size: 22px; margin-bottom: 4px; color: #0d0d0d; }
+      #print-area .sub { font-size: 13px; color: #666; margin-bottom: 24px; }
+      #print-area .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+      #print-area .card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px 14px; }
+      #print-area .card-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
+      #print-area .card-val { font-size: 18px; font-weight: 600; }
+      #print-area .green { color: #1D9E75; } #print-area .red { color: #D85A30; }
+      #print-area h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: #999; margin: 20px 0 10px; }
+      #print-area table { width: 100%; border-collapse: collapse; font-size: 13px; }
+      #print-area th { text-align: left; border-bottom: 2px solid #e0e0e0; padding: 6px 8px; font-size: 11px; color: #999; text-transform: uppercase; }
+      #print-area td { padding: 8px 8px; border-bottom: 1px solid #f0f0f0; }
+      #print-area .amt { text-align: right; font-weight: 500; }
+      #print-area .footer { margin-top: 32px; font-size: 11px; color: #bbb; border-top: 1px solid #e0e0e0; padding-top: 12px; }
+    </style>
+    <h1>Meu Balanço</h1>
+    <div class="sub">Relatório mensal — ${MONTHS[m]} / ${y}</div>
+    <div class="grid">
+      <div class="card"><div class="card-label">Entradas</div><div class="card-val green">R$ ${fmtNum(totE)}</div></div>
+      <div class="card"><div class="card-label">Saídas</div><div class="card-val red">R$ ${fmtNum(totS)}</div></div>
+      <div class="card"><div class="card-label">Saldo</div><div class="card-val ${saldo>=0?'green':'red'}">${saldo<0?'- ':''}R$ ${fmtNum(saldo)}</div></div>
+    </div>
+    ${cats.length?`<h2>Saídas por categoria</h2>
+    <table><thead><tr><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
+    ${cats.map(([c,v])=>`<tr><td>${c}</td><td class="amt red">R$ ${fmtNum(v)}</td></tr>`).join('')}
+    </tbody></table>`:''}
+    <h2>Lançamentos</h2>
+    <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
+    ${data.map(d=>{
+      const isE=d.t==='e';
+      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.d||d.c}</td><td>${d.c}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.v)}</td></tr>`;
+    }).join('')}
+    </tbody></table>
+    <div class="footer">Gerado por Meu Balanço • ${new Date().toLocaleDateString('pt-BR')}</div>
+  `;
+  pa.style.display='block';
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{pa.style.display='none';pa.innerHTML='';},500);
+  },100);
+};
+
+// ── IMPORT ───────────────────────────────────────────────────────────────────
+document.getElementById('import-input').onchange=function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const parsed=JSON.parse(e.target.result);
+      const items=parsed.lancamentos||parsed;
+      if(!Array.isArray(items))throw new Error();
+      save(items);render();closeOv('ov-exp');
+      alert('Dados importados com sucesso!');
+    } catch(err){
+      alert('Arquivo inválido. Use um backup gerado pelo Meu Balanço.');
+    }
+  };
+  reader.readAsText(file);
+  this.value='';
+};
+
+// ── PWA ──────────────────────────────────────────────────────────────────────
 let deferredPrompt=null;
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.MSStream;
 const isStandalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-
-if(isIOS&&!isStandalone){
-  setTimeout(()=>document.getElementById('ios-tip').classList.add('show'),2000);
-}
+if(isIOS&&!isStandalone)setTimeout(()=>document.getElementById('ios-tip').classList.add('show'),2000);
 document.getElementById('btn-ios-x').onclick=()=>document.getElementById('ios-tip').classList.remove('show');
-
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();deferredPrompt=e;
-  document.getElementById('install-banner').classList.add('show');
-});
-document.getElementById('btn-inst-ok').onclick=async()=>{
-  if(!deferredPrompt)return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt=null;
-  document.getElementById('install-banner').classList.remove('show');
-};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-banner').classList.add('show');});
+document.getElementById('btn-inst-ok').onclick=async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;document.getElementById('install-banner').classList.remove('show');};
 document.getElementById('btn-inst-x').onclick=()=>document.getElementById('install-banner').classList.remove('show');
 window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.remove('show'));
-
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('service-worker.js');
-}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('service-worker.js');
 
 render();
 </script>
