@@ -411,13 +411,54 @@ const now=new Date();let y=now.getFullYear(),m=now.getMonth(),editIdx=null,editR
 
 // ── storage helpers ───────────────────────────────────────────────────────────
 const key     = ()=>`mb_${y}_${m}`;
-const load    = ()=>{try{return JSON.parse(localStorage.getItem(key())||'[]');}catch(e){return[];}};
+const load    = ()=>{
+  try{
+    const raw=JSON.parse(localStorage.getItem(key())||'[]');
+    const migrated=migrateData(raw);
+    // persist migration silently if anything changed
+    if(JSON.stringify(raw)!==JSON.stringify(migrated))localStorage.setItem(key(),JSON.stringify(migrated));
+    return migrated;
+  }catch(e){return[];}
+};
 const save    = d=>localStorage.setItem(key(),JSON.stringify(d));
-const loadRec = ()=>{try{return JSON.parse(localStorage.getItem('mb_recorrentes')||'[]');}catch(e){return[];}};
+const loadRec = ()=>{
+  try{
+    const raw=JSON.parse(localStorage.getItem('mb_recorrentes')||'[]');
+    const migrated=migrateRec(raw);
+    if(JSON.stringify(raw)!==JSON.stringify(migrated))localStorage.setItem('mb_recorrentes',JSON.stringify(migrated));
+    return migrated;
+  }catch(e){return[];}
+};
 const saveRec = d=>localStorage.setItem('mb_recorrentes',JSON.stringify(d));
-const fmt     = n=>'R$ '+Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt     = n=>{ const num=parseFloat(n)||0; return 'R$ '+Math.abs(num).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); };
 const fmtNum  = n=>Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const uid     = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+// ── migrate old field names (t/d/v/c/rid) → new names ────────────────────────
+function migrateData(arr){
+  return arr.map(item=>{
+    if(item.tipo!==undefined)return item; // already migrated
+    return {
+      tipo:       item.t||item.tipo||'e',
+      descricao:  item.d||'',
+      valor:      parseFloat(item.v)||0,
+      categoria:  item.c||'',
+      ...(item.rid?{recorrente_id:item.rid}:{})
+    };
+  });
+}
+function migrateRec(arr){
+  return arr.map(item=>{
+    if(item.tipo!==undefined)return item;
+    return {
+      id:         item.id,
+      tipo:       item.t||item.tipo||'e',
+      descricao:  item.d||'',
+      valor:      parseFloat(item.v)||0,
+      categoria:  item.c||''
+    };
+  });
+}
 
 // ── inject recorrentes into month if not yet present ─────────────────────────
 function injectRecorrentes(){
@@ -504,7 +545,7 @@ function render(){
         <div class="lanc-desc">${desc}</div>
         <div class="lanc-cat" style="display:flex;align-items:center;gap:5px;">${d.categoria} ${recBadge}</div>
       </div>
-      <div class="lanc-valor ${isE?'v-entrada':'v-saida'}">${isE?'+':'-'} ${fmt(d.v)}</div>
+      <div class="lanc-valor ${isE?'v-entrada':'v-saida'}">${isE?'+':'-'} ${fmt(d.valor)}</div>
       <div class="item-actions">
         <button class="btn-icon btn-edit" onclick="openEdit(${i})" aria-label="Editar"><i class="ti ti-pencil" aria-hidden="true"></i></button>
         <button class="btn-icon btn-del"  onclick="del(${i})"      aria-label="Remover"><i class="ti ti-trash"  aria-hidden="true"></i></button>
@@ -577,7 +618,7 @@ document.getElementById('save-ent').onclick=()=>{
     const data=load();
     const oldItem=data[editIdx];
     const rid=editRecId||(recOn?uid():null);
-    const item={tipo:'e',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id}:{})};
+    const item={tipo:'e',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id:rid}:{})};
     data[editIdx]=item;
     save(data);
     if(rid){
@@ -603,7 +644,7 @@ document.getElementById('save-ent').onclick=()=>{
       const rid=uid();
       const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id});
+      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
     } else {
       data.push({tipo:'e',descricao:desc,valor:val,categoria:cat});
     }
@@ -624,7 +665,7 @@ document.getElementById('save-sai').onclick=()=>{
     const data=load();
     const oldItem=data[editIdx];
     const rid=editRecId||(recOn?uid():null);
-    const item={tipo:'s',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id}:{})};
+    const item={tipo:'s',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id:rid}:{})};
     data[editIdx]=item;
     save(data);
     if(rid){
@@ -647,7 +688,7 @@ document.getElementById('save-sai').onclick=()=>{
       const rid=uid();
       const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id});
+      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
     } else {
       data.push({tipo:'s',descricao:desc,valor:val,categoria:cat});
     }
@@ -733,7 +774,7 @@ document.getElementById('exp-xlsx').onclick=()=>{
       d.tipo==='e'?'Entrada':'Saída',
       d.descricao||d.categoria,
       d.categoria,
-      d.v
+      d.valor
     ]);
   });
   const wsLanc=XLSX.utils.aoa_to_sheet(rows);
@@ -787,7 +828,7 @@ document.getElementById('exp-pdf').onclick=()=>{
     <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
     ${data.map(d=>{
       const isE=d.tipo==='e';
-      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.descricao||d.categoria}</td><td>${d.categoria}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.v)}</td></tr>`;
+      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.descricao||d.categoria}</td><td>${d.categoria}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.valor)}</td></tr>`;
     }).join('')}
     </tbody></table>
     <div class="footer">Gerado por Meu Balanço • ${new Date().toLocaleDateString('pt-BR')}</div>
