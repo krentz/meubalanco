@@ -45,22 +45,23 @@
   @media(min-width:400px){.main{padding:24px 18px 60px;}}
   @media(min-width:520px){.main{padding:28px 20px 60px;}}
 
-  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px;}
-  .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:10px 8px;}
-  .s-label{font-size:9px;color:var(--text2);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:3px;}
-  .s-label i{font-size:11px;}
-  .s-value{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+  .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 14px;}
+  .s-label{font-size:10px;color:var(--text2);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+  .s-label i{font-size:12px;}
+  .s-value{font-family:var(--mono);font-size:15px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .s-value.green{color:var(--green);}.s-value.red{color:var(--red);}
-  @media(min-width:400px){.s-card{padding:14px 12px;}.s-label{font-size:11px;gap:5px;}.s-label i{font-size:13px;}.s-value{font-size:15px;}}
-  @media(min-width:520px){.s-card{padding:14px 16px;}.s-value{font-size:16px;}}
 
-  .bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:20px;display:none;}
-  .bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-  .bar-title{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
-  .bar-pct{font-family:var(--mono);font-size:13px;font-weight:500;}
-  .track{height:8px;background:var(--bg4);border-radius:99px;overflow:hidden;margin-bottom:8px;}
+  .bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:20px;display:none;}
+  .saldo-block{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .saldo-block-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;display:flex;align-items:center;gap:4px;}
+  .saldo-block-value{font-family:var(--mono);font-size:20px;font-weight:500;}
+  .bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .bar-title{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;gap:4px;}
+  .bar-pct{font-family:var(--mono);font-size:12px;font-weight:500;}
+  .track{height:8px;background:var(--bg4);border-radius:99px;overflow:hidden;}
   .fill{height:100%;border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;}
-  .bar-hint{font-size:11px;color:var(--text3);}
+  .bar-hint{font-size:10px;color:var(--text3);margin-top:6px;}
 
   .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;}
   .btn-action{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 8px;border-radius:var(--r-lg);border:1px solid;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
@@ -204,15 +205,15 @@
       <div class="s-label"><i class="ti ti-arrow-up-circle" style="color:var(--red)"></i> Saídas</div>
       <div class="s-value red" id="tot-sai">R$ 0,00</div>
     </div>
-    <div class="s-card">
-      <div class="s-label"><i class="ti ti-wallet"></i> Saldo</div>
-      <div class="s-value" id="saldo">R$ 0,00</div>
-    </div>
   </div>
 
   <div class="bar-wrap" id="bar-wrap">
+    <div class="saldo-block">
+      <div class="saldo-block-label"><i class="ti ti-wallet" style="font-size:11px;"></i> Saldo do mês</div>
+      <div class="saldo-block-value" id="saldo">R$ 0,00</div>
+    </div>
     <div class="bar-header">
-      <span class="bar-title"><i class="ti ti-percentage"></i> Renda comprometida</span>
+      <span class="bar-title"><i class="ti ti-percentage" style="font-size:11px;"></i> Renda comprometida</span>
       <span class="bar-pct" id="bar-pct">0%</span>
     </div>
     <div class="track"><div class="fill" id="bar-fill" style="width:0%"></div></div>
@@ -511,14 +512,16 @@ function render(){
   const totE=ents.reduce((s,d)=>s+d.valor,0),totS=sais.reduce((s,d)=>s+d.valor,0),saldo=totE-totS;
   document.getElementById('tot-ent').textContent=fmt(totE);
   document.getElementById('tot-sai').textContent=fmt(totS);
-  const sel=document.getElementById('saldo');
-  sel.textContent=(saldo<0?'- ':'')+fmt(saldo);
-  sel.className='s-value'+(saldo>0?' green':saldo<0?' red':'');
 
   const bw=document.getElementById('bar-wrap');
-  if(totE>0){
+  if(totE>0||totS>0){
     bw.style.display='block';
-    const pct=Math.min(100,Math.round(totS/totE*100));
+    // saldo
+    const sel=document.getElementById('saldo');
+    sel.textContent=(saldo<0?'- ':'')+fmt(saldo);
+    sel.style.color=saldo>0?'var(--green)':saldo<0?'var(--red)':'var(--text)';
+    // bar
+    const pct=totE>0?Math.min(100,Math.round(totS/totE*100)):100;
     const f=document.getElementById('bar-fill');
     f.style.width=pct+'%';
     f.style.background=pct>80?'#D85A30':pct>60?'#F4A261':'#1D9E75';
