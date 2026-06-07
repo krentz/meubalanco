@@ -431,7 +431,7 @@ const loadRec = ()=>{
 };
 const saveRec = d=>localStorage.setItem('mb_recorrentes',JSON.stringify(d));
 const fmt     = n=>{ const num=parseFloat(n)||0; return 'R$ '+Math.abs(num).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); };
-const fmtNum  = n=>Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtNum  = n=>{ const num=parseFloat(n)||0; return Math.abs(num).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); };
 const uid     = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
 // ── migrate old field names (t/d/v/c/rid) → new names ────────────────────────
@@ -451,22 +451,35 @@ function migrateRec(arr){
   return arr.map(item=>{
     if(item.tipo!==undefined)return item;
     return {
-      id:         item.id,
-      tipo:       item.t||item.tipo||'e',
-      descricao:  item.d||'',
-      valor:      parseFloat(item.v)||0,
-      categoria:  item.c||''
+      id:          item.id,
+      tipo:        item.t||item.tipo||'e',
+      descricao:   item.d||'',
+      valor:       parseFloat(item.v)||0,
+      categoria:   item.c||'',
+      ...(item.inicio_ano!==undefined?{inicio_ano:item.inicio_ano,inicio_mes:item.inicio_mes}:{})
     };
   });
 }
 
 // ── inject recorrentes into month if not yet present ─────────────────────────
+function loadRaw(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(key())||'[]');
+    const migrated=migrateData(raw);
+    if(JSON.stringify(raw)!==JSON.stringify(migrated))localStorage.setItem(key(),JSON.stringify(migrated));
+    return migrated;
+  }catch(e){return[];}
+}
 function injectRecorrentes(){
   const recs=loadRec();
   if(!recs.length)return;
-  const data=load();
+  const data=loadRaw();
   let changed=false;
   recs.forEach(r=>{
+    // only inject for months >= when recorrente was created
+    const startY=r.inicio_ano||0, startM=r.inicio_mes!==undefined?r.inicio_mes:0;
+    const afterStart=(y>startY)||(y===startY&&m>=startM);
+    if(!afterStart)return;
     const alreadyIn=data.some(d=>d.recorrente_id===r.id);
     if(!alreadyIn){data.push({tipo:r.tipo,descricao:r.descricao,valor:r.valor,categoria:r.categoria,recorrente_id:r.id});changed=true;}
   });
@@ -582,7 +595,7 @@ function openEdit(i){
   const data=load(),item=data[i];
   editIdx=i;
   editRecId=item.recorrente_id||null;
-  if(item.t==='e'){
+  if(item.tipo==='e'){
     document.getElementById('ent-title').innerHTML='<i class="ti ti-pencil"></i> Editar entrada';
     document.getElementById('ent-desc').value=item.descricao||'';
     document.getElementById('ent-val').value=item.valor;
@@ -642,7 +655,7 @@ document.getElementById('save-ent').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat};
+      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m};
       const recs=loadRec();recs.push(template);saveRec(recs);
       data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
     } else {
@@ -686,7 +699,7 @@ document.getElementById('save-sai').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat};
+      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m};
       const recs=loadRec();recs.push(template);saveRec(recs);
       data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
     } else {
@@ -717,15 +730,28 @@ document.getElementById('cancel-exp').onclick=()=>closeOv('ov-exp');
 
 // share or download helper
 function shareOrDownload(blob,filename){
+  // Try Web Share API only on mobile where it works reliably
+  const isMobile=/iphone|ipad|ipod|android/i.test(navigator.userAgent);
   const file=new File([blob],filename,{type:blob.type});
-  if(navigator.canShare&&navigator.canShare({files:[file]})){
-    navigator.share({files:[file],title:'Meu Balanço — '+MONTHS[m]+' '+y}).catch(()=>{});
+  if(isMobile&&navigator.canShare&&navigator.canShare({files:[file]})){
+    navigator.share({files:[file],title:'Meu Balanço — '+MONTHS[m]+' '+y}).catch(()=>triggerDownload(blob,filename));
   } else {
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download=filename;a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
+    triggerDownload(blob,filename);
   }
+}
+function triggerDownload(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  // small delay before cleanup so browser has time to start download
+  setTimeout(()=>{
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },1000);
 }
 
 // JSON export
@@ -849,7 +875,7 @@ document.getElementById('import-input').onchange=function(){
       const parsed=JSON.parse(e.target.result);
       const items=parsed.lancamentos||parsed;
       if(!Array.isArray(items))throw new Error();
-      save(items);render();closeOv('ov-exp');
+      save(migrateData(items));render();closeOv('ov-exp');
       alert('Dados importados com sucesso!');
     } catch(err){
       alert('Arquivo inválido. Use um backup gerado pelo Meu Balanço.');
