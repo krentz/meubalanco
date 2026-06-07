@@ -28,7 +28,9 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;}
 
-  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 20px 0;position:sticky;top:0;z-index:10;}
+  .topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 14px 0;position:sticky;top:0;z-index:10;}
+  @media(min-width:400px){.topbar{padding:16px 18px 0;}}
+  @media(min-width:520px){.topbar{padding:16px 20px 0;}}
   .topbar-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .brand-name{font-size:17px;font-weight:600;color:var(--text);line-height:1.2;}
   .brand-sub{font-size:12px;color:var(--text2);margin-top:2px;}
@@ -39,13 +41,18 @@
   .period-btn:hover{background:var(--bg4);color:var(--text);}
   .period-label{font-size:14px;font-weight:500;color:var(--text);min-width:140px;text-align:center;}
 
-  .main{max-width:520px;margin:0 auto;padding:28px 20px 60px;}
+  .main{max-width:520px;margin:0 auto;padding:20px 14px 60px;}
+  @media(min-width:400px){.main{padding:24px 18px 60px;}}
+  @media(min-width:520px){.main{padding:28px 20px 60px;}}
 
-  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
-  .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:14px 16px;}
-  .s-label{font-size:11px;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px;}
-  .s-value{font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:20px;}
+  .s-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:10px 8px;}
+  .s-label{font-size:9px;color:var(--text2);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:3px;}
+  .s-label i{font-size:11px;}
+  .s-value{font-family:var(--mono);font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .s-value.green{color:var(--green);}.s-value.red{color:var(--red);}
+  @media(min-width:400px){.s-card{padding:14px 12px;}.s-label{font-size:11px;gap:5px;}.s-label i{font-size:13px;}.s-value{font-size:15px;}}
+  @media(min-width:520px){.s-card{padding:14px 16px;}.s-value{font-size:16px;}}
 
   .bar-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 18px;margin-bottom:20px;display:none;}
   .bar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
@@ -83,7 +90,8 @@
   .lanc-info{flex:1;min-width:0;}
   .lanc-desc{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .lanc-cat{font-size:11px;color:var(--text3);margin-top:2px;}
-  .lanc-valor{font-family:var(--mono);font-size:14px;font-weight:500;flex-shrink:0;}
+  .lanc-valor{font-family:var(--mono);font-size:12px;font-weight:500;flex-shrink:0;}
+  @media(min-width:400px){.lanc-valor{font-size:14px;}}
   .v-entrada{color:var(--green);}.v-saida{color:var(--red);}
   .item-actions{display:flex;gap:4px;flex-shrink:0;}
   .btn-icon{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;color:var(--text3);}
@@ -418,8 +426,8 @@ function injectRecorrentes(){
   const data=load();
   let changed=false;
   recs.forEach(r=>{
-    const alreadyIn=data.some(d=>d.rid===r.id);
-    if(!alreadyIn){data.push({t:r.t,d:r.d,v:r.v,c:r.c,rid:r.id});changed=true;}
+    const alreadyIn=data.some(d=>d.recorrente_id===r.id);
+    if(!alreadyIn){data.push({tipo:r.tipo,descricao:r.descricao,valor:r.valor,categoria:r.categoria,recorrente_id:r.id});changed=true;}
   });
   if(changed)save(data);
 }
@@ -445,8 +453,8 @@ function render(){
   injectRecorrentes();
   document.getElementById('period-label').textContent=MONTHS[m]+' '+y;
   const data=load();
-  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
-  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0),saldo=totE-totS;
+  const ents=data.filter(d=>d.tipo==='e'),sais=data.filter(d=>d.tipo==='s');
+  const totE=ents.reduce((s,d)=>s+d.valor,0),totS=sais.reduce((s,d)=>s+d.valor,0),saldo=totE-totS;
   document.getElementById('tot-ent').textContent=fmt(totE);
   document.getElementById('tot-sai').textContent=fmt(totS);
   const sel=document.getElementById('saldo');
@@ -466,7 +474,7 @@ function render(){
   } else bw.style.display='none';
 
   const catMap={};
-  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
   const cs=document.getElementById('cat-section');
   if(cats.length){
@@ -486,15 +494,15 @@ function render(){
     return;
   }
   ll.innerHTML=[...data].reverse().map((d,ri)=>{
-    const i=data.length-1-ri,isE=d.t==='e',desc=d.d||d.c;
-    const recBadge=d.rid
+    const i=data.length-1-ri,isE=d.tipo==='e',desc=d.descricao||d.categoria;
+    const recBadge=d.recorrente_id
       ? `<span class="${isE?'badge-rec':'badge-rec-red'}"><i class="ti ti-repeat" style="font-size:9px;" aria-hidden="true"></i> mensal</span>`
       : '';
     return `<div class="lanc-item">
       <div class="lanc-dot ${isE?'dot-entrada':'dot-saida'}"><i class="ti ti-${isE?'arrow-down':'arrow-up'}" aria-hidden="true"></i></div>
       <div class="lanc-info">
         <div class="lanc-desc">${desc}</div>
-        <div class="lanc-cat" style="display:flex;align-items:center;gap:5px;">${d.c} ${recBadge}</div>
+        <div class="lanc-cat" style="display:flex;align-items:center;gap:5px;">${d.categoria} ${recBadge}</div>
       </div>
       <div class="lanc-valor ${isE?'v-entrada':'v-saida'}">${isE?'+':'-'} ${fmt(d.v)}</div>
       <div class="item-actions">
@@ -509,15 +517,15 @@ function render(){
 function del(i){
   const data=load();
   const item=data[i];
-  if(item.rid){
+  if(item.recorrente_id){
     // recorrente: remove from template + all months
-    const recs=loadRec().filter(r=>r.id!==item.rid);
+    const recs=loadRec().filter(r=>r.id!==item.recorrente_id);
     saveRec(recs);
     // remove from every stored month
     Object.keys(localStorage).filter(k=>k.startsWith('mb_')).forEach(k=>{
       try{
         const arr=JSON.parse(localStorage.getItem(k)||'[]');
-        const filtered=arr.filter(d=>d.rid!==item.rid);
+        const filtered=arr.filter(d=>d.recorrente_id!==item.recorrente_id);
         if(filtered.length!==arr.length)localStorage.setItem(k,JSON.stringify(filtered));
       }catch(e){}
     });
@@ -532,21 +540,21 @@ function del(i){
 function openEdit(i){
   const data=load(),item=data[i];
   editIdx=i;
-  editRecId=item.rid||null;
+  editRecId=item.recorrente_id||null;
   if(item.t==='e'){
     document.getElementById('ent-title').innerHTML='<i class="ti ti-pencil"></i> Editar entrada';
-    document.getElementById('ent-desc').value=item.d||'';
-    document.getElementById('ent-val').value=item.v;
-    setSel('ent-cat',item.c);
-    setRecUI('ent',!!item.rid);
+    document.getElementById('ent-desc').value=item.descricao||'';
+    document.getElementById('ent-val').value=item.valor;
+    setSel('ent-cat',item.categoria);
+    setRecUI('ent',!!item.recorrente_id);
     document.getElementById('save-ent').textContent='Salvar alterações';
     openOv('ov-ent');
   } else {
     document.getElementById('sai-title').innerHTML='<i class="ti ti-pencil"></i> Editar saída';
-    document.getElementById('sai-desc').value=item.d||'';
-    document.getElementById('sai-val').value=item.v;
-    setSel('sai-cat',item.c);
-    setRecUI('sai',!!item.rid);
+    document.getElementById('sai-desc').value=item.descricao||'';
+    document.getElementById('sai-val').value=item.valor;
+    setSel('sai-cat',item.categoria);
+    setRecUI('sai',!!item.recorrente_id);
     document.getElementById('save-sai').textContent='Salvar alterações';
     openOv('ov-sai');
   }
@@ -569,21 +577,21 @@ document.getElementById('save-ent').onclick=()=>{
     const data=load();
     const oldItem=data[editIdx];
     const rid=editRecId||(recOn?uid():null);
-    const item={t:'e',d:desc,v:val,c:cat,...(rid?{rid}:{})};
+    const item={tipo:'e',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id}:{})};
     data[editIdx]=item;
     save(data);
     if(rid){
       // update or create recorrente template
       const recs=loadRec();
       const ri=recs.findIndex(r=>r.id===rid);
-      const template={id:rid,t:'e',d:desc,v:val,c:cat};
+      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat};
       if(ri>=0)recs[ri]=template;else recs.push(template);
       saveRec(recs);
       // update all other months that have this rid
       Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!==key()).forEach(k=>{
         try{
           const arr=JSON.parse(localStorage.getItem(k)||'[]');
-          const updated=arr.map(d=>d.rid===rid?{...d,d:desc,v:val,c:cat}:d);
+          const updated=arr.map(d=>d.recorrente_id===rid?{...d,descricao:desc,valor:val,categoria:cat}:d);
           localStorage.setItem(k,JSON.stringify(updated));
         }catch(e){}
       });
@@ -593,11 +601,11 @@ document.getElementById('save-ent').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,t:'e',d:desc,v:val,c:cat};
+      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({t:'e',d:desc,v:val,c:cat,rid});
+      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id});
     } else {
-      data.push({t:'e',d:desc,v:val,c:cat});
+      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat});
     }
     save(data);
   }
@@ -616,19 +624,19 @@ document.getElementById('save-sai').onclick=()=>{
     const data=load();
     const oldItem=data[editIdx];
     const rid=editRecId||(recOn?uid():null);
-    const item={t:'s',d:desc,v:val,c:cat,...(rid?{rid}:{})};
+    const item={tipo:'s',descricao:desc,valor:val,categoria:cat,...(rid?{recorrente_id}:{})};
     data[editIdx]=item;
     save(data);
     if(rid){
       const recs=loadRec();
       const ri=recs.findIndex(r=>r.id===rid);
-      const template={id:rid,t:'s',d:desc,v:val,c:cat};
+      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat};
       if(ri>=0)recs[ri]=template;else recs.push(template);
       saveRec(recs);
       Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!==key()).forEach(k=>{
         try{
           const arr=JSON.parse(localStorage.getItem(k)||'[]');
-          const updated=arr.map(d=>d.rid===rid?{...d,d:desc,v:val,c:cat}:d);
+          const updated=arr.map(d=>d.recorrente_id===rid?{...d,descricao:desc,valor:val,categoria:cat}:d);
           localStorage.setItem(k,JSON.stringify(updated));
         }catch(e){}
       });
@@ -637,11 +645,11 @@ document.getElementById('save-sai').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,t:'s',d:desc,v:val,c:cat};
+      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({t:'s',d:desc,v:val,c:cat,rid});
+      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id});
     } else {
-      data.push({t:'s',d:desc,v:val,c:cat});
+      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat});
     }
     save(data);
   }
@@ -690,8 +698,8 @@ document.getElementById('exp-json').onclick=()=>{
 // XLSX export
 document.getElementById('exp-xlsx').onclick=()=>{
   const data=load();
-  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
-  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0);
+  const ents=data.filter(d=>d.tipo==='e'),sais=data.filter(d=>d.tipo==='s');
+  const totE=ents.reduce((s,d)=>s+d.valor,0),totS=sais.reduce((s,d)=>s+d.valor,0);
   const periodo=`${MONTHS[m]} / ${y}`;
 
   const wb=XLSX.utils.book_new();
@@ -710,7 +718,7 @@ document.getElementById('exp-xlsx').onclick=()=>{
     ['SAÍDAS POR CATEGORIA'],
   ];
   const catMap={};
-  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
   Object.entries(catMap).sort((a,b)=>b[1]-a[1]).forEach(([c,v])=>{
     resumo.push([c,'R$ '+fmtNum(v)]);
   });
@@ -722,9 +730,9 @@ document.getElementById('exp-xlsx').onclick=()=>{
   const rows=[['Tipo','Descrição','Categoria','Valor (R$)']];
   data.forEach(d=>{
     rows.push([
-      d.t==='e'?'Entrada':'Saída',
-      d.d||d.c,
-      d.c,
+      d.tipo==='e'?'Entrada':'Saída',
+      d.descricao||d.categoria,
+      d.categoria,
       d.v
     ]);
   });
@@ -740,10 +748,10 @@ document.getElementById('exp-xlsx').onclick=()=>{
 // PDF via print
 document.getElementById('exp-pdf').onclick=()=>{
   const data=load();
-  const ents=data.filter(d=>d.t==='e'),sais=data.filter(d=>d.t==='s');
-  const totE=ents.reduce((s,d)=>s+d.v,0),totS=sais.reduce((s,d)=>s+d.v,0),saldo=totE-totS;
+  const ents=data.filter(d=>d.tipo==='e'),sais=data.filter(d=>d.tipo==='s');
+  const totE=ents.reduce((s,d)=>s+d.valor,0),totS=sais.reduce((s,d)=>s+d.valor,0),saldo=totE-totS;
   const catMap={};
-  sais.forEach(d=>{catMap[d.c]=(catMap[d.c]||0)+d.v;});
+  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
   const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
 
   const pa=document.getElementById('print-area');
@@ -778,8 +786,8 @@ document.getElementById('exp-pdf').onclick=()=>{
     <h2>Lançamentos</h2>
     <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
     ${data.map(d=>{
-      const isE=d.t==='e';
-      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.d||d.c}</td><td>${d.c}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.v)}</td></tr>`;
+      const isE=d.tipo==='e';
+      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.descricao||d.categoria}</td><td>${d.categoria}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.v)}</td></tr>`;
     }).join('')}
     </tbody></table>
     <div class="footer">Gerado por Meu Balanço • ${new Date().toLocaleDateString('pt-BR')}</div>
