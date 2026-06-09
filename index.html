@@ -72,14 +72,7 @@
   .btn-saida:hover{background:rgba(216,90,48,.2);border-color:var(--red);}
 
 
-  .cat-section{margin-bottom:28px;display:none;}
   .section-title{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-  .cat-rows{display:flex;flex-direction:column;gap:8px;}
-  .cat-row{display:flex;align-items:center;gap:10px;font-size:13px;}
-  .cat-name{width:130px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;}
-  .cat-track{flex:1;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden;}
-  .cat-fill{height:100%;border-radius:99px;background:var(--red);opacity:.7;}
-  .cat-val{font-family:var(--mono);font-size:12px;color:var(--text2);min-width:80px;text-align:right;flex-shrink:0;}
 
   .lanc-list{display:flex;flex-direction:column;gap:6px;}
   .lanc-item{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);padding:12px 14px;transition:border-color .15s;animation:slideIn .2s ease;}
@@ -153,7 +146,40 @@
   #ios-tip strong{color:var(--text);}
   #ios-tip button{margin-top:12px;background:var(--bg4);border:none;color:var(--text2);padding:8px 20px;border-radius:var(--r-md);font-family:var(--font);font-size:13px;cursor:pointer;}
 
+  /* chips */
+  .chips-wrap{margin-bottom:14px;}
+  .chips-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:6px 12px;font-size:12px;font-family:var(--font);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .chip:hover{border-color:rgba(29,158,117,.3);color:#ccc;background:var(--bg4);}
+  .chip.active{background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
+  .chip.active-red{background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
+  .chip i{font-size:12px;}
+  .modal input.filled{border-color:rgba(29,158,117,.4);}
+  .btn-ok-entrada:disabled,.btn-ok-saida:disabled{opacity:.35;cursor:not-allowed;}
+
   /* recorrente toggle */
+  .rec-expanded{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+  .rec-row.active .rec-expanded{display:block;}
+  .rec-opt-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+  .rec-opt-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .rec-opt-card{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;transition:all .15s;text-align:left;}
+  .rec-opt-card:hover{border-color:rgba(29,158,117,0.3);}
+  .rec-opt-card.active{background:var(--green-bg);border-color:var(--green-border);}
+  .rec-opt-card i{font-size:16px;color:var(--text3);display:block;margin-bottom:5px;}
+  .rec-opt-card.active i{color:var(--green);}
+  .rec-opt-name{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:2px;}
+  .rec-opt-card.active .rec-opt-name{color:var(--text);}
+  .rec-opt-desc{font-size:10px;color:var(--text3);line-height:1.4;}
+  .meses-wrap{display:none;background:var(--bg4);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .meses-wrap.show{display:block;}
+  .meses-stepper{display:flex;align-items:center;gap:10px;margin-top:8px;}
+  .step-btn{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;flex-shrink:0;}
+  .step-btn:hover{background:var(--bg4);color:var(--text);}
+  .step-val{font-size:20px;font-weight:500;color:var(--text);font-family:var(--mono);min-width:28px;text-align:center;}
+  .meses-hint{font-size:11px;color:var(--green);margin-top:6px;}
+  .rec-info{background:rgba(29,158,117,0.07);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--text3);line-height:1.5;display:flex;gap:7px;align-items:flex-start;}
+  .rec-info i{color:var(--green);font-size:12px;flex-shrink:0;margin-top:1px;}
   .rec-row{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-lg);padding:13px 14px;margin-top:4px;cursor:pointer;transition:border-color .15s;}
   .rec-row.active{border-color:var(--green-border);}
   .rec-top{display:flex;align-items:center;gap:10px;}
@@ -223,12 +249,6 @@
   <div class="actions">
     <button class="btn-action btn-entrada" id="open-ent"><i class="ti ti-plus" aria-hidden="true"></i> Entrada</button>
     <button class="btn-action btn-saida"   id="open-sai"><i class="ti ti-minus" aria-hidden="true"></i> Saída</button>
-  </div>
-
-  <div class="cat-section" id="cat-section">
-    <div class="section-title"><i class="ti ti-chart-pie"></i> Saídas por categoria</div>
-    <div class="cat-rows" id="cat-rows"></div>
-    <div class="divider"></div>
   </div>
 
   <div>
@@ -304,40 +324,61 @@
       <i class="ti ti-arrow-down-circle"></i> Nova entrada
     </div>
     <div class="modal-field">
-      <label>Descrição <span style="color:var(--text3);text-transform:none;font-size:11px">(opcional)</span></label>
-      <input type="text" id="ent-desc" placeholder="Ex: Salário de junho" autocomplete="off">
-      <div class="input-hint">Se deixar em branco, usamos a categoria como descrição</div>
-    </div>
-    <div class="modal-field">
       <label>Valor (R$)</label>
-      <input type="number" id="ent-val" placeholder="0,00" min="0" step="0.01">
+      <input type="number" id="ent-val" placeholder="0,00" min="0" step="0.01" oninput="checkReady('ent')">
     </div>
     <div class="modal-field">
-      <label>Categoria</label>
-      <select id="ent-cat">
-        <option>Salário</option>
-        <option>Vale alimentação</option>
-        <option>Renda passiva</option>
-        <option>Freelance / extra</option>
-        <option>Outros</option>
-      </select>
+      <label>Descrição</label>
+      <input type="text" id="ent-desc" placeholder="Digite ou selecione uma sugestão abaixo" autocomplete="off" oninput="onTypeChip('ent',this.value)">
+    </div>
+    <div class="chips-wrap">
+      <div class="chips-label">Sugestões</div>
+      <div class="chips" id="chips-ent">
+        <button type="button" class="chip" onclick="selectChip('ent',this)"><i class="ti ti-briefcase"></i> Salário</button>
+        <button type="button" class="chip" onclick="selectChip('ent',this)"><i class="ti ti-coin"></i> Renda passiva</button>
+        <button type="button" class="chip" onclick="selectChip('ent',this)"><i class="ti ti-device-laptop"></i> Renda extra</button>
+        <button type="button" class="chip" onclick="selectChip('ent',this)"><i class="ti ti-salad"></i> Vale alimentação</button>
+        <button type="button" class="chip" onclick="selectChip('ent',this)"><i class="ti ti-dots"></i> Outros</button>
+      </div>
     </div>
     <div class="rec-row" id="rec-ent" onclick="toggleRec('ent')">
       <div class="rec-top">
         <div class="toggle-wrap" id="tw-ent"><div class="toggle-thumb"></div></div>
         <div>
           <div class="rec-label">Lançamento recorrente</div>
-          <div class="rec-sub">Repetir automaticamente todo mês</div>
+          <div class="rec-sub" id="rec-sub-ent">Repetir automaticamente todo mês</div>
         </div>
       </div>
-      <div class="rec-detail">
-        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;" aria-hidden="true"></i>
-        Este valor será adicionado a partir deste mês em todos os meses seguintes. Para cancelar, basta apagar o lançamento.
+      <div class="rec-expanded">
+        <div class="rec-opt-label">Tipo de recorrência</div>
+        <div class="rec-opt-cards">
+          <div class="rec-opt-card active" id="rec-opt-fixa-ent" onclick="selectRecOpt(event,'ent','fixa')">
+            <i class="ti ti-infinity" aria-hidden="true"></i>
+            <div class="rec-opt-name">Fixa</div>
+            <div class="rec-opt-desc">Repete todo mês até cancelar</div>
+          </div>
+          <div class="rec-opt-card" id="rec-opt-meses-ent" onclick="selectRecOpt(event,'ent','meses')">
+            <i class="ti ti-calendar-time" aria-hidden="true"></i>
+            <div class="rec-opt-name">Por meses</div>
+            <div class="rec-opt-desc">Define quantos meses vai aparecer</div>
+          </div>
+        </div>
+        <div class="meses-wrap" id="meses-wrap-ent">
+          <div style="font-size:11px;color:var(--text3);">Quantos meses?</div>
+          <div class="meses-stepper">
+            <button type="button" class="step-btn" onclick="stepMeses(event,'ent',-1)"><i class="ti ti-minus" style="font-size:12px;"></i></button>
+            <div class="step-val" id="meses-val-ent">3</div>
+            <button type="button" class="step-btn" onclick="stepMeses(event,'ent',1)"><i class="ti ti-plus" style="font-size:12px;"></i></button>
+            <span style="font-size:13px;color:var(--text3);margin-left:4px;">meses</span>
+          </div>
+          <div class="meses-hint" id="meses-hint-ent"></div>
+        </div>
+        <div class="rec-info"><i class="ti ti-info-circle"></i><span id="rec-info-ent">Este valor será adicionado automaticamente todo mês. Para cancelar, apague o lançamento.</span></div>
       </div>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancel-ent">Cancelar</button>
-      <button class="btn-ok btn-ok-entrada" id="save-ent">Adicionar entrada</button>
+      <button class="btn-ok btn-ok-entrada" id="save-ent" disabled>Adicionar entrada</button>
     </div>
   </div>
 </div>
@@ -350,44 +391,65 @@
       <i class="ti ti-arrow-up-circle"></i> Nova saída
     </div>
     <div class="modal-field">
-      <label>Descrição <span style="color:var(--text3);text-transform:none;font-size:11px">(opcional)</span></label>
-      <input type="text" id="sai-desc" placeholder="Ex: Conta de luz" autocomplete="off">
-      <div class="input-hint">Se deixar em branco, usamos a categoria como descrição</div>
-    </div>
-    <div class="modal-field">
       <label>Valor (R$)</label>
-      <input type="number" id="sai-val" placeholder="0,00" min="0" step="0.01">
+      <input type="number" id="sai-val" placeholder="0,00" min="0" step="0.01" oninput="checkReady('sai')">
     </div>
     <div class="modal-field">
-      <label>Categoria</label>
-      <select id="sai-cat">
-        <option>Cartão de crédito</option>
-        <option>Casa / moradia</option>
-        <option>Carro / transporte</option>
-        <option>Financiamento / dívida</option>
-        <option>Alimentação</option>
-        <option>Saúde</option>
-        <option>Lazer</option>
-        <option>Educação</option>
-        <option>Outros</option>
-      </select>
+      <label>Descrição</label>
+      <input type="text" id="sai-desc" placeholder="Digite ou selecione uma sugestão abaixo" autocomplete="off" oninput="onTypeChip('sai',this.value)">
+    </div>
+    <div class="chips-wrap">
+      <div class="chips-label">Sugestões</div>
+      <div class="chips" id="chips-sai">
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-credit-card"></i> Cartão</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-home"></i> Casa</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-car"></i> Carro</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-building-bank"></i> Financiamento</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-tools-kitchen-2"></i> Alimentação</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-heart-rate-monitor"></i> Saúde</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-armchair"></i> Lazer</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-school"></i> Educação</button>
+        <button type="button" class="chip" onclick="selectChip('sai',this)"><i class="ti ti-dots"></i> Outros</button>
+      </div>
     </div>
     <div class="rec-row" id="rec-sai" onclick="toggleRec('sai')">
       <div class="rec-top">
         <div class="toggle-wrap" id="tw-sai"><div class="toggle-thumb"></div></div>
         <div>
           <div class="rec-label">Lançamento recorrente</div>
-          <div class="rec-sub">Repetir automaticamente todo mês</div>
+          <div class="rec-sub" id="rec-sub-sai">Repetir automaticamente todo mês</div>
         </div>
       </div>
-      <div class="rec-detail">
-        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;" aria-hidden="true"></i>
-        Este valor será adicionado a partir deste mês em todos os meses seguintes. Para cancelar, basta apagar o lançamento.
+      <div class="rec-expanded">
+        <div class="rec-opt-label">Tipo de recorrência</div>
+        <div class="rec-opt-cards">
+          <div class="rec-opt-card active" id="rec-opt-fixa-sai" onclick="selectRecOpt(event,'sai','fixa')">
+            <i class="ti ti-infinity" aria-hidden="true"></i>
+            <div class="rec-opt-name">Fixa</div>
+            <div class="rec-opt-desc">Repete todo mês até cancelar</div>
+          </div>
+          <div class="rec-opt-card" id="rec-opt-meses-sai" onclick="selectRecOpt(event,'sai','meses')">
+            <i class="ti ti-calendar-time" aria-hidden="true"></i>
+            <div class="rec-opt-name">Por meses</div>
+            <div class="rec-opt-desc">Define quantos meses vai aparecer</div>
+          </div>
+        </div>
+        <div class="meses-wrap" id="meses-wrap-sai">
+          <div style="font-size:11px;color:var(--text3);">Quantos meses?</div>
+          <div class="meses-stepper">
+            <button type="button" class="step-btn" onclick="stepMeses(event,'sai',-1)"><i class="ti ti-minus" style="font-size:12px;"></i></button>
+            <div class="step-val" id="meses-val-sai">3</div>
+            <button type="button" class="step-btn" onclick="stepMeses(event,'sai',1)"><i class="ti ti-plus" style="font-size:12px;"></i></button>
+            <span style="font-size:13px;color:var(--text3);margin-left:4px;">meses</span>
+          </div>
+          <div class="meses-hint" id="meses-hint-sai"></div>
+        </div>
+        <div class="rec-info"><i class="ti ti-info-circle"></i><span id="rec-info-sai">Este valor será adicionado automaticamente todo mês. Para cancelar, apague o lançamento.</span></div>
       </div>
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" id="cancel-sai">Cancelar</button>
-      <button class="btn-ok btn-ok-saida" id="save-sai">Adicionar saída</button>
+      <button class="btn-ok btn-ok-saida" id="save-sai" disabled>Adicionar saída</button>
     </div>
   </div>
 </div>
@@ -476,31 +538,92 @@ function injectRecorrentes(){
   if(!recs.length)return;
   const data=loadRaw();
   let changed=false;
+  const recsToRemove=[];
   recs.forEach(r=>{
-    // only inject for months >= when recorrente was created
-    const startY=r.inicio_ano||0, startM=r.inicio_mes!==undefined?r.inicio_mes:0;
+    const startY=r.inicio_ano||0,startM=r.inicio_mes!==undefined?r.inicio_mes:0;
     const afterStart=(y>startY)||(y===startY&&m>=startM);
     if(!afterStart)return;
+    // check meses limit
+    if(r.rec_tipo==='meses'){
+      const startDate=new Date(startY,startM);
+      const curDate=new Date(y,m);
+      const monthsElapsed=((curDate.getFullYear()-startDate.getFullYear())*12)+(curDate.getMonth()-startDate.getMonth());
+      if(monthsElapsed>=r.rec_meses){recsToRemove.push(r.id);return;} // expired
+    }
     const alreadyIn=data.some(d=>d.recorrente_id===r.id);
-    if(!alreadyIn){data.push({tipo:r.tipo,descricao:r.descricao,valor:r.valor,categoria:r.categoria,recorrente_id:r.id});changed=true;}
+    if(!alreadyIn){data.push({tipo:r.tipo,descricao:r.descricao,valor:r.valor,categoria:r.categoria,recorrente_id:r.id,...(r.rec_tipo?{rec_tipo:r.rec_tipo}:{}),...(r.rec_meses?{rec_meses:r.rec_meses}:{}),...(r.inicio_ano!=null?{inicio_ano:r.inicio_ano,inicio_mes:r.inicio_mes}:{})});changed=true;}
   });
+  if(recsToRemove.length){
+    saveRec(loadRec().filter(r=>!recsToRemove.includes(r.id)));
+  }
   if(changed)save(data);
 }
 
-// ── toggle recorrente UI ──────────────────────────────────────────────────────
+// ── recorrente state ─────────────────────────────────────────────────────────
+const recState={ent:{tipo:'fixa',meses:3},sai:{tipo:'fixa',meses:3}};
+
 function toggleRec(which){
   const row=document.getElementById('rec-'+which);
   const tw=document.getElementById('tw-'+which);
   const isOn=tw.classList.contains('on');
-  if(isOn){tw.classList.remove('on');row.classList.remove('active');}
-  else{tw.classList.add('on');row.classList.add('active');}
+  if(isOn){tw.classList.remove('on');row.classList.remove('active');updateRecSub(which);}
+  else{tw.classList.add('on');row.classList.add('active');updateRecInfo(which);updateRecSub(which);}
 }
 function isRecOn(which){return document.getElementById('tw-'+which).classList.contains('on');}
-function setRecUI(which,on){
+function setRecUI(which,on,tipo,meses){
   const tw=document.getElementById('tw-'+which);
   const row=document.getElementById('rec-'+which);
-  if(on){tw.classList.add('on');row.classList.add('active');}
-  else{tw.classList.remove('on');row.classList.remove('active');}
+  if(on){
+    tw.classList.add('on');row.classList.add('active');
+    if(tipo){recState[which].tipo=tipo;recState[which].meses=meses||3;}
+    selectRecOpt({stopPropagation:()=>{}},which,recState[which].tipo);
+    updateRecInfo(which);updateRecSub(which);
+  } else {
+    tw.classList.remove('on');row.classList.remove('active');
+    // reset to defaults
+    recState[which]={tipo:'fixa',meses:3};
+    selectRecOpt({stopPropagation:()=>{}},which,'fixa');
+    updateRecSub(which);
+  }
+}
+function selectRecOpt(e,which,tipo){
+  e.stopPropagation();
+  recState[which].tipo=tipo;
+  document.getElementById('rec-opt-fixa-'+which).classList.toggle('active',tipo==='fixa');
+  document.getElementById('rec-opt-meses-'+which).classList.toggle('active',tipo==='meses');
+  document.getElementById('meses-wrap-'+which).classList.toggle('show',tipo==='meses');
+  updateRecInfo(which);updateRecSub(which);
+}
+function stepMeses(e,which,delta){
+  e.stopPropagation();
+  recState[which].meses=Math.max(1,Math.min(24,recState[which].meses+delta));
+  document.getElementById('meses-val-'+which).textContent=recState[which].meses;
+  updateRecInfo(which);updateRecSub(which);
+}
+function updateRecInfo(which){
+  const {tipo,meses}=recState[which];
+  const infoEl=document.getElementById('rec-info-'+which);
+  const hintEl=document.getElementById('meses-hint-'+which);
+  if(tipo==='fixa'){
+    infoEl.textContent='Este valor será adicionado automaticamente todo mês. Para cancelar, apague o lançamento.';
+    hintEl.textContent='';
+  } else {
+    const end=new Date(y,m+meses-1);
+    const endLabel=MONTHS[end.getMonth()]+' '+end.getFullYear();
+    hintEl.textContent='Aparece até '+endLabel;
+    infoEl.textContent='Este valor será adicionado nos próximos '+meses+(meses===1?' mês':' meses')+' e para automaticamente.';
+  }
+}
+function updateRecSub(which){
+  const subEl=document.getElementById('rec-sub-'+which);
+  const isOn=isRecOn(which);
+  if(!isOn){subEl.textContent='Repetir automaticamente todo mês';return;}
+  const {tipo,meses}=recState[which];
+  if(tipo==='fixa') subEl.textContent='Recorrência fixa — repete todo mês';
+  else {
+    const end=new Date(y,m+meses-1);
+    subEl.textContent='Por '+meses+(meses===1?' mês':' meses')+' — até '+MONTHS[end.getMonth()]+' '+end.getFullYear();
+  }
 }
 
 // ── render ────────────────────────────────────────────────────────────────────
@@ -530,21 +653,6 @@ function render(){
     bp.style.color=pct>80?'#D85A30':pct>60?'#F4A261':'#1D9E75';
   } else bw.style.display='none';
 
-  const catMap={};
-  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
-  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
-  const cs=document.getElementById('cat-section');
-  if(cats.length){
-    cs.style.display='block';
-    const max=cats[0][1];
-    document.getElementById('cat-rows').innerHTML=cats.map(([c,v])=>`
-      <div class="cat-row">
-        <div class="cat-name">${c}</div>
-        <div class="cat-track"><div class="cat-fill" style="width:${Math.round(v/max*100)}%"></div></div>
-        <div class="cat-val">${fmt(v)}</div>
-      </div>`).join('');
-  } else cs.style.display='none';
-
   const ll=document.getElementById('lanc-list');
   if(!data.length){
     ll.innerHTML=`<div class="empty"><i class="ti ti-pig-money"></i>Nenhum lançamento ainda<span>Adicione uma entrada ou saída para começar</span></div>`;
@@ -552,9 +660,27 @@ function render(){
   }
   ll.innerHTML=[...data].reverse().map((d,ri)=>{
     const i=data.length-1-ri,isE=d.tipo==='e',desc=d.descricao||d.categoria;
-    const recBadge=d.recorrente_id
-      ? `<span class="${isE?'badge-rec':'badge-rec-red'}"><i class="ti ti-repeat" style="font-size:9px;" aria-hidden="true"></i> mensal</span>`
-      : '';
+    let recBadge='';
+    if(d.recorrente_id){
+      // all data lives on the item itself — no template lookup needed
+      let recTipo=d.rec_tipo, recMeses=d.rec_meses;
+      let inicioAno=d.inicio_ano, inicioMes=d.inicio_mes;
+      // fallback to template only for old items that predate this fix
+      if(!recTipo||inicioAno==null){
+        const tpl=loadRec().find(r=>r.id===d.recorrente_id);
+        if(tpl){
+          if(!recTipo){recTipo=tpl.rec_tipo;recMeses=tpl.rec_meses;}
+          if(inicioAno==null){inicioAno=tpl.inicio_ano;inicioMes=tpl.inicio_mes;}
+        }
+      }
+      let label='mensal';
+      if(recTipo==='meses'&&recMeses&&inicioAno!=null){
+        const elapsed=((y-inicioAno)*12+(m-inicioMes));
+        const restantes=Math.max(1, recMeses-elapsed);
+        label=restantes+'m';
+      }
+      recBadge=`<span class="${isE?'badge-rec':'badge-rec-red'}"><i class="ti ti-repeat" style="font-size:9px;" aria-hidden="true"></i> ${label}</span>`;
+    }
     return `<div class="lanc-item">
       <div class="lanc-dot ${isE?'dot-entrada':'dot-saida'}"><i class="ti ti-${isE?'arrow-down':'arrow-up'}" aria-hidden="true"></i></div>
       <div class="lanc-info">
@@ -575,15 +701,31 @@ function del(i){
   const data=load();
   const item=data[i];
   if(item.recorrente_id){
-    // recorrente: remove from template + all months
-    const recs=loadRec().filter(r=>r.id!==item.recorrente_id);
-    saveRec(recs);
-    // remove from every stored month
-    Object.keys(localStorage).filter(k=>k.startsWith('mb_')).forEach(k=>{
+    const rid=item.recorrente_id;
+    // 1. remove template so it stops injecting
+    saveRec(loadRec().filter(r=>r.id!==rid));
+    // 2. remove from current month and future months only
+    Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!=='mb_recorrentes').forEach(k=>{
       try{
+        const parts=k.split('_'); // mb_YYYY_M
+        const ky=parseInt(parts[1]),km=parseInt(parts[2]);
+        const isFutureOrNow=(ky>y)||(ky===y&&km>=m);
+        if(!isFutureOrNow)return; // keep past months intact
         const arr=JSON.parse(localStorage.getItem(k)||'[]');
-        const filtered=arr.filter(d=>d.recorrente_id!==item.recorrente_id);
+        const filtered=arr.filter(d=>d.recorrente_id!==rid);
         if(filtered.length!==arr.length)localStorage.setItem(k,JSON.stringify(filtered));
+      }catch(e){}
+    });
+    // 3. detach recorrente_id from past months (keep item, remove badge)
+    Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!=='mb_recorrentes').forEach(k=>{
+      try{
+        const parts=k.split('_');
+        const ky=parseInt(parts[1]),km=parseInt(parts[2]);
+        const isPast=(ky<y)||(ky===y&&km<m);
+        if(!isPast)return;
+        const arr=JSON.parse(localStorage.getItem(k)||'[]');
+        const updated=arr.map(d=>d.recorrente_id===rid?{tipo:d.tipo,descricao:d.descricao,valor:d.valor,categoria:d.categoria}:d);
+        if(JSON.stringify(arr)!==JSON.stringify(updated))localStorage.setItem(k,JSON.stringify(updated));
       }catch(e){}
     });
   } else {
@@ -600,33 +742,37 @@ function openEdit(i){
   editRecId=item.recorrente_id||null;
   if(item.tipo==='e'){
     document.getElementById('ent-title').innerHTML='<i class="ti ti-pencil"></i> Editar entrada';
-    document.getElementById('ent-desc').value=item.descricao||'';
+    const edesc=item.descricao||item.categoria||'';
+    document.getElementById('ent-desc').value=edesc;
+    if(edesc) { document.getElementById('ent-desc').classList.add('filled'); onTypeChip('ent',edesc); }
     document.getElementById('ent-val').value=item.valor;
-    setSel('ent-cat',item.categoria);
-    setRecUI('ent',!!item.recorrente_id);
+    if(item.recorrente_id){const tpl=loadRec().find(r=>r.id===item.recorrente_id);setRecUI('ent',true,tpl?.rec_tipo||'fixa',tpl?.rec_meses||3);}else{setRecUI('ent',false);}
     document.getElementById('save-ent').textContent='Salvar alterações';
+    document.getElementById('save-ent').disabled=false;
     openOv('ov-ent');
   } else {
     document.getElementById('sai-title').innerHTML='<i class="ti ti-pencil"></i> Editar saída';
-    document.getElementById('sai-desc').value=item.descricao||'';
+    const sdesc=item.descricao||item.categoria||'';
+    document.getElementById('sai-desc').value=sdesc;
+    if(sdesc) { document.getElementById('sai-desc').classList.add('filled'); onTypeChip('sai',sdesc); }
     document.getElementById('sai-val').value=item.valor;
-    setSel('sai-cat',item.categoria);
-    setRecUI('sai',!!item.recorrente_id);
+    if(item.recorrente_id){const tpl=loadRec().find(r=>r.id===item.recorrente_id);setRecUI('sai',true,tpl?.rec_tipo||'fixa',tpl?.rec_meses||3);}else{setRecUI('sai',false);}
     document.getElementById('save-sai').textContent='Salvar alterações';
+    document.getElementById('save-sai').disabled=false;
     openOv('ov-sai');
   }
 }
 
 function setSel(id,val){const s=document.getElementById(id);for(let i=0;i<s.options.length;i++)if(s.options[i].value===val){s.selectedIndex=i;return;}}
-function resetEnt(){editIdx=null;editRecId=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-val').value='';document.getElementById('ent-cat').selectedIndex=0;document.getElementById('save-ent').textContent='Adicionar entrada';setRecUI('ent',false);}
-function resetSai(){editIdx=null;editRecId=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-val').value='';document.getElementById('sai-cat').selectedIndex=0;document.getElementById('save-sai').textContent='Adicionar saída';setRecUI('sai',false);}
+function resetEnt(){editIdx=null;editRecId=null;document.getElementById('ent-title').innerHTML='<i class="ti ti-arrow-down-circle"></i> Nova entrada';document.getElementById('ent-desc').value='';document.getElementById('ent-desc').classList.remove('filled');document.getElementById('ent-val').value='';document.getElementById('chips-ent').querySelectorAll('.chip').forEach(c=>c.classList.remove('active','active-red'));document.getElementById('save-ent').textContent='Adicionar entrada';document.getElementById('save-ent').disabled=true;recState.ent={tipo:'fixa',meses:3};document.getElementById('meses-val-ent').textContent=3;setRecUI('ent',false);}
+function resetSai(){editIdx=null;editRecId=null;document.getElementById('sai-title').innerHTML='<i class="ti ti-arrow-up-circle"></i> Nova saída';document.getElementById('sai-desc').value='';document.getElementById('sai-desc').classList.remove('filled');document.getElementById('sai-val').value='';document.getElementById('chips-sai').querySelectorAll('.chip').forEach(c=>c.classList.remove('active','active-red'));document.getElementById('save-sai').textContent='Adicionar saída';document.getElementById('save-sai').disabled=true;recState.sai={tipo:'fixa',meses:3};document.getElementById('meses-val-sai').textContent=3;setRecUI('sai',false);}
 
 // ── save entrada ──────────────────────────────────────────────────────────────
 document.getElementById('save-ent').onclick=()=>{
   const desc=document.getElementById('ent-desc').value.trim();
   const val=parseFloat(document.getElementById('ent-val').value);
-  const cat=document.getElementById('ent-cat').value;
-  if(!val||val<=0)return;
+  const cat=desc; // categoria = descrição (campo unificado)
+  if(!val||val<=0||!desc)return;
   const recOn=isRecOn('ent');
 
   if(editIdx!==null){
@@ -641,7 +787,8 @@ document.getElementById('save-ent').onclick=()=>{
       // update or create recorrente template
       const recs=loadRec();
       const ri=recs.findIndex(r=>r.id===rid);
-      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat};
+      const {tipo:rTipo,meses:rMeses}=recState['ent'];
+      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses}:{})};
       if(ri>=0)recs[ri]=template;else recs.push(template);
       saveRec(recs);
       // update all other months that have this rid
@@ -658,9 +805,10 @@ document.getElementById('save-ent').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m};
+      const {tipo:rTipo,meses:rMeses}=recState['ent'];
+      const template={id:rid,tipo:'e',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses,rec_meses_restantes:rMeses}:{})};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
+      data.push({tipo:'e',descricao:desc,valor:val,categoria:cat,recorrente_id:rid,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses}:{}),inicio_ano:y,inicio_mes:m});
     } else {
       data.push({tipo:'e',descricao:desc,valor:val,categoria:cat});
     }
@@ -673,8 +821,8 @@ document.getElementById('save-ent').onclick=()=>{
 document.getElementById('save-sai').onclick=()=>{
   const desc=document.getElementById('sai-desc').value.trim();
   const val=parseFloat(document.getElementById('sai-val').value);
-  const cat=document.getElementById('sai-cat').value;
-  if(!val||val<=0)return;
+  const cat=desc; // categoria = descrição (campo unificado)
+  if(!val||val<=0||!desc)return;
   const recOn=isRecOn('sai');
 
   if(editIdx!==null){
@@ -687,7 +835,8 @@ document.getElementById('save-sai').onclick=()=>{
     if(rid){
       const recs=loadRec();
       const ri=recs.findIndex(r=>r.id===rid);
-      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat};
+      const {tipo:rTipo,meses:rMeses}=recState['sai'];
+      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses}:{})};
       if(ri>=0)recs[ri]=template;else recs.push(template);
       saveRec(recs);
       Object.keys(localStorage).filter(k=>k.startsWith('mb_')&&k!==key()).forEach(k=>{
@@ -702,9 +851,10 @@ document.getElementById('save-sai').onclick=()=>{
     const data=load();
     if(recOn){
       const rid=uid();
-      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m};
+      const {tipo:rTipo,meses:rMeses}=recState['sai'];
+      const template={id:rid,tipo:'s',descricao:desc,valor:val,categoria:cat,inicio_ano:y,inicio_mes:m,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses,rec_meses_restantes:rMeses}:{})};
       const recs=loadRec();recs.push(template);saveRec(recs);
-      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id:rid});
+      data.push({tipo:'s',descricao:desc,valor:val,categoria:cat,recorrente_id:rid,rec_tipo:rTipo,...(rTipo==='meses'?{rec_meses:rMeses}:{}),inicio_ano:y,inicio_mes:m});
     } else {
       data.push({tipo:'s',descricao:desc,valor:val,categoria:cat});
     }
@@ -712,6 +862,40 @@ document.getElementById('save-sai').onclick=()=>{
   }
   closeOv('ov-sai');resetSai();render();
 };
+
+// ── chip helpers ─────────────────────────────────────────────────────────────
+function selectChip(which, el) {
+  const container = document.getElementById('chips-'+which);
+  const input = document.getElementById(which==='ent'?'ent-desc':'sai-desc');
+  const cls = which==='ent'?'active':'active-red';
+  const wasActive = el.classList.contains(cls);
+  container.querySelectorAll('.chip').forEach(c=>c.classList.remove('active','active-red'));
+  if(!wasActive){
+    el.classList.add(cls);
+    input.value = el.textContent.trim();
+    input.classList.add('filled');
+  } else {
+    input.value='';
+    input.classList.remove('filled');
+  }
+  checkReady(which);
+}
+function onTypeChip(which, val) {
+  const container = document.getElementById('chips-'+which);
+  const cls = which==='ent'?'active':'active-red';
+  container.querySelectorAll('.chip').forEach(c=>{
+    c.classList.remove('active','active-red');
+    if(c.textContent.trim()===val) c.classList.add(cls);
+  });
+  document.getElementById(which==='ent'?'ent-desc':'sai-desc').classList.toggle('filled', val.trim().length>0);
+  checkReady(which);
+}
+function checkReady(which) {
+  const val  = parseFloat(document.getElementById(which==='ent'?'ent-val':'sai-val').value);
+  const desc = document.getElementById(which==='ent'?'ent-desc':'sai-desc').value.trim();
+  const btn  = document.getElementById(which==='ent'?'save-ent':'save-sai');
+  btn.disabled = !(val>0 && desc.length>0);
+}
 
 // ── navigation ────────────────────────────────────────────────────────────────
 document.getElementById('prev').onclick=()=>{m--;if(m<0){m=11;y--;}render();};
@@ -784,25 +968,17 @@ document.getElementById('exp-xlsx').onclick=()=>{
     ['Total Saídas','R$ '+fmtNum(totS)],
     ['Saldo do Mês','R$ '+fmtNum(totE-totS)],
     ['% Renda comprometida',totE>0?(Math.round(totS/totE*1000)/10)+'%':'—'],
-    [],
-    ['SAÍDAS POR CATEGORIA'],
   ];
-  const catMap={};
-  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
-  Object.entries(catMap).sort((a,b)=>b[1]-a[1]).forEach(([c,v])=>{
-    resumo.push([c,'R$ '+fmtNum(v)]);
-  });
   const wsResumo=XLSX.utils.aoa_to_sheet(resumo);
   wsResumo['!cols']=[{wch:32},{wch:18}];
   XLSX.utils.book_append_sheet(wb,wsResumo,'Resumo');
 
   // ── sheet 2: lançamentos ─────────────────────────────────────────────────
-  const rows=[['Tipo','Descrição','Categoria','Valor (R$)']];
+  const rows=[['Tipo','Descrição','Valor (R$)']];
   data.forEach(d=>{
     rows.push([
       d.tipo==='e'?'Entrada':'Saída',
-      d.descricao||d.categoria,
-      d.categoria,
+      d.descricao||d.categoria||'',
       d.valor
     ]);
   });
@@ -820,14 +996,14 @@ document.getElementById('exp-pdf').onclick=()=>{
   const data=load();
   const ents=data.filter(d=>d.tipo==='e'),sais=data.filter(d=>d.tipo==='s');
   const totE=ents.reduce((s,d)=>s+d.valor,0),totS=sais.reduce((s,d)=>s+d.valor,0),saldo=totE-totS;
-  const catMap={};
-  sais.forEach(d=>{catMap[d.categoria]=(catMap[d.categoria]||0)+d.valor;});
-  const cats=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+
 
   const pa=document.getElementById('print-area');
   pa.innerHTML=`
     <style>
-      #print-area { font-family: Arial, sans-serif; color: #111; background: #fff; padding: 32px; max-width: 640px; margin: 0 auto; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      body, html { background: #fff !important; }
+      #print-area { font-family: Arial, sans-serif; color: #111; background: #fff !important; padding: 32px; max-width: 640px; margin: 0 auto; }
       #print-area h1 { font-size: 22px; margin-bottom: 4px; color: #0d0d0d; }
       #print-area .sub { font-size: 13px; color: #666; margin-bottom: 24px; }
       #print-area .grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
@@ -849,15 +1025,12 @@ document.getElementById('exp-pdf').onclick=()=>{
       <div class="card"><div class="card-label">Saídas</div><div class="card-val red">R$ ${fmtNum(totS)}</div></div>
       <div class="card"><div class="card-label">Saldo</div><div class="card-val ${saldo>=0?'green':'red'}">${saldo<0?'- ':''}R$ ${fmtNum(saldo)}</div></div>
     </div>
-    ${cats.length?`<h2>Saídas por categoria</h2>
-    <table><thead><tr><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
-    ${cats.map(([c,v])=>`<tr><td>${c}</td><td class="amt red">R$ ${fmtNum(v)}</td></tr>`).join('')}
-    </tbody></table>`:''}
+
     <h2>Lançamentos</h2>
-    <table><thead><tr><th>Tipo</th><th>Descrição</th><th>Categoria</th><th class="amt">Valor</th></tr></thead><tbody>
+    <table><thead><tr><th>Tipo</th><th>Descrição</th><th class="amt">Valor</th></tr></thead><tbody>
     ${data.map(d=>{
       const isE=d.tipo==='e';
-      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.descricao||d.categoria}</td><td>${d.categoria}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.valor)}</td></tr>`;
+      return `<tr><td>${isE?'Entrada':'Saída'}</td><td>${d.descricao||d.categoria||''}</td><td class="amt ${isE?'green':'red'}">${isE?'+':'-'} R$ ${fmtNum(d.valor)}</td></tr>`;
     }).join('')}
     </tbody></table>
     <div class="footer">Gerado por Meu Balanço • ${new Date().toLocaleDateString('pt-BR')}</div>
